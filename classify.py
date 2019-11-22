@@ -147,26 +147,18 @@ for filename in filenames:
 	X_data = data[:,1:num_features]
 	Y_data = data[:,0]
 
-	#print(X_data)
-	#exit(0)
-	
 	Y_pred = classifier.predict(X_data)
-	#print(Y_pred)
-	#print(Y_data)
+	Y_8bit = Y_pred.astype("u1")   
 
-	predicted_array = numpy.reshape(Y_pred,(numrows,numcols),order='F')
-	labels_array = numpy.reshape(Y_data,(numrows,numcols),order='F')
-
+	predicted_array = numpy.reshape(Y_8bit,(numrows,numcols),order='F')
 
 	predicted_image = Image.fromarray(predicted_array)
-	labels_binary  = Image.fromarray(labels_array)
 
 	predicted_image.save(output, "TIFF")
-	#labels_binary.save("output/labels.tif", "TIFF")
-	#bin_img.save("output/original_binary.tif", "TIFF")
 
 	raw_img.close()
 	bin_img.close()
+	predicted_image.close()
 
 exit(0)
 
