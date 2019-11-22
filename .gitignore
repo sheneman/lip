@@ -4,3 +4,4 @@ clear
 models/*
 output/*
 filelist
+.*
