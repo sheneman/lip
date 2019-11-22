@@ -20,6 +20,10 @@ import preprocess
 
 MODEL_FILENAME = "./models/UNSCALED_classifier_Po1g_ALL_100trees_ALLsigmas.model"
 
+PIXEL_LOAD = False
+PIXEL_DUMP = True
+PIXEL_FILE = "serialized_pixels"
+
 #FILE_FILTER = "*.tif"
 FILE_FILTER = "Po1g*.tif"
 #FILE_FILTER = "Po1g_100_12_024*.tif"
@@ -66,38 +70,49 @@ print("Feature Vector Length: %d" %num_features)
 
 
 
+if(PIXEL_LOAD == True):
+	data = pickle.load(PIXEL_FILE,'rb')
+else:
 
-#
-# Now we need to reorganize the data into a long table of one pixel on each
-# row, with columns representing the features
-#
-print("\nRe-structuring loaded data for training...\n")
+	#
+	# Now we need to reorganize the data into a long table of one pixel on each
+	# row, with columns representing the features
+	#
+	print("\nRe-structuring loaded data for training...\n")
 
-fcount = 0 
-index = 0
+	fcount = 0 
+	index = 0
 
-# declare our new numpy array 
-data = numpy.ndarray(shape=(pixels,num_features), dtype=numpy.float32)
-for file in dataset:
-	numrows=len(file[0])
-	numcols=len(file[0][0])
+	# declare our new numpy array 
+	data = numpy.ndarray(shape=(pixels,num_features), dtype=numpy.float32)
+	for file in dataset:
+		numrows=len(file[0])
+		numcols=len(file[0][0])
 
-	for col in range(numcols):
-		for row in range(numrows):
-			for f in range(num_features):
-				data[index][f]=file[f][row][col]
-			index = index + 1
+		for col in range(numcols):
+			for row in range(numrows):
+				for f in range(num_features):
+					data[index][f]=file[f][row][col]
+				index = index + 1
 
-	# The code below prints nice status message
-	j = (fcount+1)/nfiles
-	sys.stdout.write('\r')
-	sys.stdout.write("[%-20s] %d%%" % ('='*int(20*j), 100*j))
-	sys.stdout.flush()
+		# The code below prints nice status message
+		j = (fcount+1)/nfiles
+		sys.stdout.write('\r')
+		sys.stdout.write("[%-20s] %d%%" % ('='*int(20*j), 100*j))
+		sys.stdout.flush()
 
-	fcount = fcount + 1
+		fcount = fcount + 1
 
-print("\n")
-print("pixels = %d, INDEX = %d" %(pixels,index))
+	print("\n")
+	print("pixels = %d, INDEX = %d" %(pixels,index))
+
+
+
+# Dumping giant pixel list
+if(PIXEL_DUMP == True):
+	pickle.dump(data, open(PIXEL_FILE,'wb'))
+
+
 
 # Free up space in dataset
 del dataset
