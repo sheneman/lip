@@ -20,12 +20,12 @@ import preprocess
 
 MODEL_FILENAME = "./models/classifier_ALLFILES_HALF_PIXELS_100trees_ALLsigmas.model"
 
-FILE_FILTER = "*.tif"
+#FILE_FILTER = "*.tif"
 #FILE_FILTER = "Po1g*.tif"
 #FILE_FILTER = "Po1g_100_12_024*.tif"
-#FILE_FILTER = "Po1g_100_12_*.tif"
+FILE_FILTER = "Po1g_100_12_*.tif"
 
-THREADS = 27
+THREADS = 8
 
 
 # Set some paths for our image library of raw and binary labeled data
