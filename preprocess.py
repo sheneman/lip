@@ -21,7 +21,6 @@ def feature_count():
 	return(len(SIGMAS)*c+2)	
 
 
-
 def image_preprocess(original_image, binary_image, sigmas = SIGMAS):
 
 	image_list = []
@@ -69,3 +68,13 @@ def image_preprocess(original_image, binary_image, sigmas = SIGMAS):
 
 	return(image_list)
 
+
+
+def output_preprocessed(images, dir):
+	index = 0
+	for f in images:
+		pathname = dir + "/" + str(index) + ".tif"
+		x = Image.fromarray(f)
+		x.save(pathname, "TIFF")
+		index = index + 1
+	

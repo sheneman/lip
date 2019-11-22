@@ -18,14 +18,14 @@ import sys
 
 import preprocess
 
-MODEL_FILENAME = "./models/classifier_ALLFILES_75percent_PIXELS_100trees_ALLsigmas.model"
+MODEL_FILENAME = "./models/UNSCALED_classifier_Po1g_ALL_100trees_ALLsigmas.model"
 
-FILE_FILTER = "*.tif"
-#FILE_FILTER = "Po1g*.tif"
+#FILE_FILTER = "*.tif"
+FILE_FILTER = "Po1g*.tif"
 #FILE_FILTER = "Po1g_100_12_024*.tif"
 #FILE_FILTER = "Po1g_100_12_*.tif"
 
-THREADS = 27
+THREADS = 8
 
 
 # Set some paths for our image library of raw and binary labeled data
@@ -54,6 +54,11 @@ for f in glob.glob(FILE_FILTER):
 	raw_img.close()
 	bin_img.close()
 os.chdir(cwd)
+
+print("HERE")
+preprocess.output_preprocessed(dataset[0], "debug")
+
+
 
 num_features = preprocess.feature_count()
 print("Total Pixels: %d" %pixels)
@@ -86,9 +91,7 @@ for file in dataset:
 	# The code below prints nice status message
 	j = (fcount+1)/nfiles
 	sys.stdout.write('\r')
-	# the exact output you're looking for:
 	sys.stdout.write("[%-20s] %d%%" % ('='*int(20*j), 100*j))
-	#sys.stdout.write("[%-20s] %d%%" % ('='*fcount, 10*fcount))
 	sys.stdout.flush()
 
 	fcount = fcount + 1
@@ -112,9 +115,9 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=(1-TRAIN_FRA
 print("X_train: %d, X_test: %d, Y_train: %d, Y_test: %d" %(len(X_train), len(X_test), len(Y_train), len(Y_test)))
 
 # Scale features to a common scale (maybe not needed?)
-sc = StandardScaler()
-X_train = sc.fit_transform(X_train)
-X_test = sc.transform(X_test)
+#sc = StandardScaler()
+#X_train = sc.fit_transform(X_train)
+#X_test = sc.transform(X_test)
 
 # Train the model
 print("Training the Random Forest")
