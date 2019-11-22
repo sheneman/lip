@@ -18,14 +18,14 @@ import sys
 
 import preprocess
 
-MODEL_FILENAME = "./models/classifier_ALLFILES_HALF_PIXELS_100trees_ALLsigmas.model"
+MODEL_FILENAME = "./models/classifier_ALLFILES_75percent_PIXELS_100trees_ALLsigmas.model"
 
-#FILE_FILTER = "*.tif"
+FILE_FILTER = "*.tif"
 #FILE_FILTER = "Po1g*.tif"
 #FILE_FILTER = "Po1g_100_12_024*.tif"
-FILE_FILTER = "Po1g_100_12_*.tif"
+#FILE_FILTER = "Po1g_100_12_*.tif"
 
-THREADS = 8
+THREADS = 27
 
 
 # Set some paths for our image library of raw and binary labeled data
@@ -33,7 +33,7 @@ INPUT_RAW_IMAGES = "../images/raw"
 INPUT_BIN_IMAGES = "../images/binary"
 
 # The fraction of the image library that will be used for training
-TRAIN_FRACTION = 0.5
+TRAIN_FRACTION = 0.75
 
 # Load all of the files, extract all features.  This builds "dataset"
 # which is a list of feature arrays.  Every element in the list is 
