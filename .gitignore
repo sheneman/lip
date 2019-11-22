@@ -4,4 +4,5 @@ clear
 models/*
 output/*
 filelist
+debug/*
 .*
