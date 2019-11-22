@@ -1,0 +1,1 @@
+lip_venv/bin/activate
