@@ -1,5 +1,5 @@
 __pycache__
 lip_venv
 clear
-models
-output
+models/*
+output/*
