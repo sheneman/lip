@@ -18,15 +18,13 @@ SIGMAS = [ 0.3, 0.7, 1.0, 1.6, 3.5, 5.0, 10.0 ]
 #
 def feature_count():
 	c = 10
-	return(len(SIGMAS)*c+2)	
+	return(len(SIGMAS)*c+1)	
 
 
-def image_preprocess(original_image, binary_image, sigmas = SIGMAS):
+def image_preprocess(original_image, sigmas = SIGMAS):
 
 	image_list = []
 	original_image_array = numpy.array(original_image)
-	binary_image_array = numpy.array(binary_image)
-	image_list.append(binary_image_array);
 	image_list.append(original_image_array);
 
 	for s in sigmas:

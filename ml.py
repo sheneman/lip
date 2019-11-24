@@ -21,49 +21,52 @@ import preprocess
 MODEL_FILENAME = "./models/UNSCALED_classifier_Po1g_ALL_100trees_ALLsigmas.model"
 
 #FILE_FILTER = "*.tif"
-FILE_FILTER = "Po1g*.tif"
-#FILE_FILTER = "Po1g_100_12_024*.tif"
+#FILE_FILTER = "Po1g*.tif"
+FILE_FILTER = "Po1g_100_12_024*.tif"
 #FILE_FILTER = "Po1g_100_12_*.tif"
 
 THREADS = 27
 
 
 # Set some paths for our image library of raw and binary labeled data
-INPUT_RAW_IMAGES = "../images/raw"
-INPUT_BIN_IMAGES = "../images/binary"
+IMG_RAWPATH = "../images/raw"
+IMG_BINPATH = "../images/binary"
 
 # The fraction of the image library that will be used for training
 TRAIN_FRACTION = 0.75
+
+# Get all of the filenames that match the filter
+cwd = os.getcwd()
+os.chdir(IMG_RAWPATH)
+filenames = glob.glob(FILE_FILTER)
+os.chdir(cwd)
 
 # Load all of the files, extract all features.  This builds "dataset"
 # which is a list of feature arrays.  Every element in the list is 
 # a list of preprocessed images
 nfiles = 0
-dataset = []
+raw_dataset = []
+bin_dataset = []
 pixels = 0
-cwd = os.getcwd()
-os.chdir(INPUT_RAW_IMAGES)
-for f in glob.glob(FILE_FILTER):
+for f in filenames:
 	print("%d: [%s]" %(nfiles,f))
 	nfiles=nfiles+1
-	raw_img = Image.open(f)
-	binpath = '../binary/' + f
+	rawpath = IMG_RAWPATH + "/" + f
+	binpath = IMG_BINPATH + "/" + f
+	raw_img = Image.open(rawpath)
 	bin_img = Image.open(binpath)
 	pixels = pixels + raw_img.size[0] * raw_img.size[1]
-	dataset.append(preprocess.image_preprocess(raw_img, bin_img))
+	raw_dataset.append(preprocess.image_preprocess(raw_img))
+	bin_dataset.append(numpy.array(bin_img))
 	raw_img.close()
 	bin_img.close()
 os.chdir(cwd)
 
-print("HERE")
-preprocess.output_preprocessed(dataset[0], "debug")
-
-
+preprocess.output_preprocessed(raw_dataset[0], "debug")
 
 num_features = preprocess.feature_count()
 print("Total Pixels: %d" %pixels)
 print("Feature Vector Length: %d" %num_features)
-
 
 
 #
@@ -75,16 +78,16 @@ print("\nRe-structuring loaded data for training...\n")
 fcount = 0 
 index = 0
 
-# declare our new numpy array 
-data = numpy.ndarray(shape=(pixels,num_features), dtype=numpy.float32)
-for file in dataset:
+# declare our new numpy array for handling raw data
+raw_data = numpy.ndarray(shape=(pixels,num_features), dtype=numpy.float32)
+for file in raw_dataset:
 	numrows=len(file[0])
 	numcols=len(file[0][0])
 
 	for col in range(numcols):
 		for row in range(numrows):
 			for f in range(num_features):
-				data[index][f]=file[f][row][col]
+				raw_data[index][f]=file[f][row][col]
 			index = index + 1
 
 	# The code below prints nice status message
@@ -95,20 +98,29 @@ for file in dataset:
 
 	fcount = fcount + 1
 
+# separately handle the binary labels
+index = 0
+bin_data = numpy.ndarray(shape=pixels, dtype=numpy.float32)
+for file in bin_dataset:
+	numrows=len(file)
+	numcols=len(file[0])
+
+	for col in range(numcols):
+		for row in range(numrows):
+			bin_data[index]=file[row][col]
+			index = index + 1
+
 print("\n")
 print("pixels = %d, INDEX = %d" %(pixels,index))
 
 # Free up space in dataset
-del dataset
+del raw_dataset
+del bin_dataset
 
-# Divide dataset into attributes (X) and labels (Y)
-X = data[:,1:num_features]
-Y = data[:,0]
-
+X_train, X_test, Y_train, Y_test = train_test_split(raw_data, bin_data, test_size=(1-TRAIN_FRACTION), random_state=0)
 # free up space from data structure
-del data
-
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=(1-TRAIN_FRACTION), random_state=0)
+del raw_data
+del bin_data
 
 # print out testing and traininig sizes
 print("X_train: %d, X_test: %d, Y_train: %d, Y_test: %d" %(len(X_train), len(X_test), len(Y_train), len(Y_test)))
