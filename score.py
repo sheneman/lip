@@ -6,8 +6,8 @@ import re
 from pprint import pprint
 
 
-BINARY_PATH = "./test/binary"
-OUTPUT_PATH = "./test/output"
+BINARY_PATH = "../images/binary"
+OUTPUT_PATH = "./output"
 
 
 pattern = re.compile(".*tif")
@@ -20,9 +20,8 @@ pattern = re.compile(".*tif")
 
 print("FILENAME,True Positives,False Positives,True Negatives,False Negatives,DICE,Jaccard,F0.5,Precision,Recall");
 
-filelist = [f for f in listdir(BINARY_PATH) if isfile(join(BINARY_PATH, f))]
+filelist = [f for f in listdir(OUTPUT_PATH) if isfile(join(OUTPUT_PATH, f))]
 for f in filelist:
-	
 	if(pattern.match(f)):
 
 #		print(f + ",",end="")

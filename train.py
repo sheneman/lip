@@ -62,6 +62,7 @@ for f in filenames:
 	bin_img.close()
 os.chdir(cwd)
 
+# this spews out all of the preprocessed images for the first image into a folder
 preprocess.output_preprocessed(raw_dataset[0], "debug")
 
 num_features = preprocess.feature_count()
