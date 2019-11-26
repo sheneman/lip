@@ -15,8 +15,19 @@ from sklearn import metrics
 import glob
 from time import sleep
 import sys
+from datetime import datetime
+from random import seed
+from random import random
 
 import preprocess
+
+
+
+# set our random seed based on current time
+now = datetime.now()
+seed(now)
+
+
 
 MODEL_FILENAME = "./models/UNSCALED_classifier_Po1g_ALL_100trees_ALLsigmas.model"
 
@@ -26,6 +37,25 @@ FILE_FILTER = "Po1g_100_12_024*.tif"
 #FILE_FILTER = "Po1g_100_12_*.tif"
 
 THREADS = 27
+
+#
+# Move this to the preprocess step.
+#
+file = "../images/raw/Po1g_100_11_050_SLIM_B.tif"
+img = Image.open(file)
+new_img_array = preprocess.wang_function(img, 1)
+new_img = Image.fromarray(new_img_array)
+new_img.save("WANG1.TIF","TIFF")
+new_img_array = preprocess.wang_function(img, 7)
+new_img = Image.fromarray(new_img_array)
+new_img.save("WANG2.TIF","TIFF")
+new_img_array = preprocess.wang_function(img, 15)
+new_img = Image.fromarray(new_img_array)
+new_img.save("WANG3.TIF","TIFF")
+new_img_array = preprocess.wang_function(img, 2)
+new_img = Image.fromarray(new_img_array)
+new_img.save("WANG3.TIF","TIFF")
+exit(0)
 
 
 # Set some paths for our image library of raw and binary labeled data
@@ -118,7 +148,7 @@ print("pixels = %d, INDEX = %d" %(pixels,index))
 del raw_dataset
 del bin_dataset
 
-X_train, X_test, Y_train, Y_test = train_test_split(raw_data, bin_data, test_size=(1-TRAIN_FRACTION), random_state=0)
+X_train, X_test, Y_train, Y_test = train_test_split(raw_data, bin_data, test_size=(1-TRAIN_FRACTION), random_state=now)
 # free up space from data structure
 del raw_data
 del bin_data

@@ -5,9 +5,58 @@ import numpy
 import scipy
 from scipy.ndimage.filters import gaussian_filter
 from skimage import feature
+from random import seed
+from random import randint
 
 SIGMAS = [ 0.3, 0.7, 1.0, 1.6, 3.5, 5.0, 10.0 ]
 #SIGMAS = [ 0.3 ]
+
+
+#
+# Extract spatial context features by choosing pairs of pixels in the 
+# vacinity of the primary pixel being classified and computing the intensity
+# difference betweeb that paiir.  Vacinity is a NxN neighboorhood.  Edges are 
+# handled by reflecting the out-of-bounds pixels into range.
+#
+# This is described in:
+#	Chisheng Wang, Qiqi Shu, Xinyu Wang, Bo Guo, Peng Liu, Qingquan Li,
+#	A random forest classifier based on pixel comparison features for urban LiDAR data,
+#	ISPRS Journal of Photogrammetry and Remote Sensing, Volume 148, 2019, Pages 75-86, ISSN 0924-2716,
+#
+
+def wang_point(x, y, numrows, numcols, radius):
+	
+	xr = randint(-radius,radius)
+	yr = randint(-radius,radius)
+
+	if( (x+xr >= numcols) or (x+xr < 0) ):
+		x1=x-xr
+	else:
+		x1=x+xr
+	if( (y+yr >= numrows) or (y+yr < 0)):
+		y1=y-yr
+	else:
+		y1=y+yr
+
+	return(x1,y1)
+
+
+
+
+def wang_function(img, radius):
+
+	img_array = numpy.array(img)
+	new_array = numpy.ndarray(img_array.shape,dtype=numpy.float32)
+	(numrows,numcols) = img_array.shape
+	for x in range(numcols):
+		for y in range(numrows):
+			(x1,y1) = wang_point(x, y, numrows, numcols, radius)
+			(x2,y2) = wang_point(x, y, numrows, numcols, radius)
+
+			diff=abs(img_array[y1][x1] - img_array[y2][x2])
+			new_array[y][x] = diff
+
+	return(new_array)
 
 
 #
