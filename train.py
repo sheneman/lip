@@ -13,8 +13,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn import metrics
 import glob
-from time import sleep
 import sys
+from time import sleep, time
 from datetime import datetime
 from random import seed
 from random import random
@@ -24,39 +24,21 @@ import preprocess
 
 
 # set our random seed based on current time
-now = datetime.now()
+now = int(time())
 seed(now)
 
 
 
-MODEL_FILENAME = "./models/UNSCALED_classifier_Po1g_ALL_100trees_ALLsigmas.model"
+#MODEL_FILENAME = "./models/UNSCALED_classifier_Po1g_ALL_100trees_ALLsigmas.model"
+MODEL_FILENAME = "./models/foo.model"
 
 #FILE_FILTER = "*.tif"
 #FILE_FILTER = "Po1g*.tif"
 FILE_FILTER = "Po1g_100_12_024*.tif"
 #FILE_FILTER = "Po1g_100_12_*.tif"
+FILE_FILTER = "MTYL_52_2_00*.tif"
 
-THREADS = 27
-
-#
-# Move this to the preprocess step.
-#
-file = "../images/raw/Po1g_100_11_050_SLIM_B.tif"
-img = Image.open(file)
-new_img_array = preprocess.wang_function(img, 1)
-new_img = Image.fromarray(new_img_array)
-new_img.save("WANG1.TIF","TIFF")
-new_img_array = preprocess.wang_function(img, 7)
-new_img = Image.fromarray(new_img_array)
-new_img.save("WANG2.TIF","TIFF")
-new_img_array = preprocess.wang_function(img, 15)
-new_img = Image.fromarray(new_img_array)
-new_img.save("WANG3.TIF","TIFF")
-new_img_array = preprocess.wang_function(img, 2)
-new_img = Image.fromarray(new_img_array)
-new_img.save("WANG3.TIF","TIFF")
-exit(0)
-
+THREADS = 8
 
 # Set some paths for our image library of raw and binary labeled data
 IMG_RAWPATH = "../images/raw"
@@ -86,7 +68,7 @@ for f in filenames:
 	raw_img = Image.open(rawpath)
 	bin_img = Image.open(binpath)
 	pixels = pixels + raw_img.size[0] * raw_img.size[1]
-	raw_dataset.append(preprocess.image_preprocess(raw_img))
+	raw_dataset.append(preprocess.image_preprocess(f, raw_img))
 	bin_dataset.append(numpy.array(bin_img))
 	raw_img.close()
 	bin_img.close()

@@ -8,6 +8,8 @@ from skimage import feature
 from random import seed
 from random import randint
 
+AGE_CLASSES = [ "MTYL_17", "MTYL_28", "MTYL_52", "MTYL_76", "MTYL_100", "MTYL_124", "Po1g_100" ]
+
 SIGMAS = [ 0.3, 0.7, 1.0, 1.6, 3.5, 5.0, 10.0 ]
 #SIGMAS = [ 0.3 ]
 
@@ -33,7 +35,7 @@ def wang_point(x, y, numrows, numcols, radius):
 		x1=x-xr
 	else:
 		x1=x+xr
-	if( (y+yr >= numrows) or (y+yr < 0)):
+	if( (y+yr >= numrows) or (y+yr < 0) ):
 		y1=y-yr
 	else:
 		y1=y+yr
@@ -67,14 +69,36 @@ def wang_function(img, radius):
 #
 def feature_count():
 	c = 10
-	return(len(SIGMAS)*c+1)	
+	wang = 5*5
+	return(len(SIGMAS)*c+len(AGE_CLASSES)+wang+1)	
+
+#
+# given an age class label and the filename of the current image
+# return 
+#
+def label_age(img_array, age, filename):
+	new_array = numpy.ndarray(img_array.shape, dtype=numpy.uint8)
+
+	if age in filename:
+		label = 255
+	else:
+		label = 0
+
+	new_array.fill(label)
+
+	return(new_array)
+	
 
 
-def image_preprocess(original_image, sigmas = SIGMAS):
+
+def image_preprocess(filename, original_image, sigmas = SIGMAS):
 
 	image_list = []
 	original_image_array = numpy.array(original_image)
 	image_list.append(original_image_array);
+
+	for age in AGE_CLASSES:
+		image_list.append(label_age(original_image_array, age, filename))
 
 	for s in sigmas:
 
@@ -112,6 +136,13 @@ def image_preprocess(original_image, sigmas = SIGMAS):
 		image_list.append(Hrr)
 		image_list.append(Hrc)
 		image_list.append(Hcc)
+
+	for i in range(5):
+		image_list.append(wang_function(original_image, 1))
+		image_list.append(wang_function(original_image, 2))
+		image_list.append(wang_function(original_image, 3))
+		image_list.append(wang_function(original_image, 4))
+		image_list.append(wang_function(original_image, 5))
 
 	return(image_list)
 
