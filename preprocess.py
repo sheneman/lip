@@ -69,7 +69,8 @@ def wang_function(img, radius):
 #
 def feature_count():
 	c = 10
-	wang = 5*5
+	#wang = 5*5
+	wang = 0
 	return(len(SIGMAS)*c+len(AGE_CLASSES)+wang+1)	
 
 #
@@ -137,12 +138,12 @@ def image_preprocess(filename, original_image, sigmas = SIGMAS):
 		image_list.append(Hrc)
 		image_list.append(Hcc)
 
-	for i in range(5):
-		image_list.append(wang_function(original_image, 1))
-		image_list.append(wang_function(original_image, 2))
-		image_list.append(wang_function(original_image, 3))
-		image_list.append(wang_function(original_image, 4))
-		image_list.append(wang_function(original_image, 5))
+	#for i in range(5):
+		#image_list.append(wang_function(original_image, 1))
+		#image_list.append(wang_function(original_image, 2))
+		#image_list.append(wang_function(original_image, 3))
+		#image_list.append(wang_function(original_image, 4))
+		#image_list.append(wang_function(original_image, 5))
 
 	return(image_list)
 

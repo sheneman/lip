@@ -7,7 +7,7 @@ from pprint import pprint
 
 
 BINARY_PATH = "../images/binary"
-OUTPUT_PATH = "./output"
+OUTPUT_PATH = "./output_Po1g"
 
 
 pattern = re.compile(".*tif")

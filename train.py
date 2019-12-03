@@ -29,16 +29,15 @@ seed(now)
 
 
 
-#MODEL_FILENAME = "./models/UNSCALED_classifier_Po1g_ALL_100trees_ALLsigmas.model"
-MODEL_FILENAME = "./models/foo.model"
+MODEL_FILENAME = "./models/classifier_MTYL17_100trees_no-maxdepth-ALLsigmas.model"
 
 #FILE_FILTER = "*.tif"
 #FILE_FILTER = "Po1g*.tif"
-FILE_FILTER = "Po1g_100_12_024*.tif"
+#FILE_FILTER = "Po1g_100_12_024*.tif"
 #FILE_FILTER = "Po1g_100_12_*.tif"
-FILE_FILTER = "MTYL_52_2_00*.tif"
+FILE_FILTER = "MTYL_17*.tif"
 
-THREADS = 8
+THREADS = 30
 
 # Set some paths for our image library of raw and binary labeled data
 IMG_RAWPATH = "../images/raw"
@@ -130,7 +129,7 @@ print("pixels = %d, INDEX = %d" %(pixels,index))
 del raw_dataset
 del bin_dataset
 
-X_train, X_test, Y_train, Y_test = train_test_split(raw_data, bin_data, test_size=(1-TRAIN_FRACTION), random_state=now)
+X_train, X_test, Y_train, Y_test = train_test_split(raw_data, bin_data, test_size=(1-TRAIN_FRACTION))
 # free up space from data structure
 del raw_data
 del bin_data
@@ -138,14 +137,10 @@ del bin_data
 # print out testing and traininig sizes
 print("X_train: %d, X_test: %d, Y_train: %d, Y_test: %d" %(len(X_train), len(X_test), len(Y_train), len(Y_test)))
 
-# Scale features to a common scale (maybe not needed?)
-#sc = StandardScaler()
-#X_train = sc.fit_transform(X_train)
-#X_test = sc.transform(X_test)
-
 # Train the model
 print("Training the Random Forest")
-classifier = RandomForestClassifier(n_estimators=100, max_depth=32, verbose=2, n_jobs=THREADS, random_state=0)
+#classifier = RandomForestClassifier(n_estimators=100, max_depth=32, verbose=2, n_jobs=THREADS)
+classifier = RandomForestClassifier(n_estimators=100, verbose=2, n_jobs=THREADS)
 classifier.fit(X_train, Y_train)
 print("DUMPING MODEL")
 pickle.dump(classifier, open(MODEL_FILENAME,'wb'))

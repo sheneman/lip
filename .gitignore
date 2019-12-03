@@ -1,8 +1,10 @@
 __pycache__
 lip_venv
+venv
 clear
-models/*
-output/*
-filelist
-debug/*
+models/
+output/
+scores/
+filelist*
+debug/*.tif
 .*

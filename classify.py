@@ -96,7 +96,7 @@ for filename in filenames:
 	rawpath = rawdir + "/" + filename
 	print("Loading: %s" %rawpath)
 	raw_img = Image.open(rawpath)
-	img_data = preprocess.image_preprocess(f, raw_img)
+	img_data = preprocess.image_preprocess(filename, raw_img)
 	numcols,numrows = raw_img.size
 
 	num_features = preprocess.feature_count()
