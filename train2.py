@@ -38,37 +38,58 @@ IMG_RAWPATH = "../images/raw"
 IMG_BINPATH = "../images/binary"
 
 # Set the training and testing filenames here
-TRAINSET_FILENAME = "./train.txt"
-TESTSET_FILENAME  = "./test.txt"
+TRAIN_FILENAME      = "./train_list.txt"
+VALIDATION_FILENAME = "./validation_list.txt"
+TEST_FILENAME       = "./test_list.txt"
 
-trainset_filenames = [line.rstrip('\n') for line in open(TRAINSET_FILENAME)]
-testset_filenames = [line.rstrip('\n') for line in open(TESTSET_FILENAME)]
+train_filenames      = [line.rstrip('\n') for line in open(TRAIN_FILENAME)]
+validation_filenames = [line.rstrip('\n') for line in open(VALIDATION_FILENAME)]
+test_filenames       = [line.rstrip('\n') for line in open(TEST_FILENAME)]
 
-# Load all of the files from the training set, extract all features.  This builds "dataset"
+
+
+#
+# function:  build_dataset()
+#
+# Load all of the images from the specified files, extract all features.  This builds "dataset"
 # which is a list of feature arrays.  Every element in the list is 
 # a list of preprocessed images
-nfiles = 0
-raw_training_dataset = []
-bin_training_dataset = []
-pixels = 0
-for f in trainset_filenames:
-	print("%d: [%s]" %(nfiles,f))
-	nfiles=nfiles+1
-	rawpath = IMG_RAWPATH + "/" + f
-	binpath = IMG_BINPATH + "/" + f
-	raw_img = Image.open(rawpath)
-	bin_img = Image.open(binpath)
-	pixels = pixels + raw_img.size[0] * raw_img.size[1]
-	raw_training_dataset.append(preprocess.image_preprocess(f, raw_img))
-	bin_training_dataset.append(numpy.array(bin_img))
-	raw_img.close()
-	bin_img.close()
+
+def build_dataset(filenames):
+	nfiles = 0
+	raw = []
+	bin = []
+	pixel_cnt = 0
+	for f in filenames:
+		print("%d: [%s]" %(nfiles,f))
+		nfiles=nfiles+1
+		rawpath = IMG_RAWPATH + "/" + f
+		binpath = IMG_BINPATH + "/" + f
+		raw_img = Image.open(rawpath)
+		bin_img = Image.open(binpath)
+		pixel_cnt = pixel_cnt + raw_img.size[0] * raw_img.size[1]
+		raw.append(preprocess.image_preprocess(f, raw_img))
+		bin.append(numpy.array(bin_img))
+		raw_img.close()
+		bin_img.close()
+	return(raw, bin, pixels)
+
+
+print("Loading Training Image Data...")
+(train_raw, train_bin, train_pixel_cnt)                = build_dataset(train_filenames)
+print("Loading Validation Image Data...")
+(validation_raw, validation_bin, validation_pixel_cnt) = build_dataset(validation_filenames)
+print("Loading Testing Image Data...")
+(test_raw, test_bin, test_pixel_cnt)                   = build_dataset(test_filenames)
+
 
 # this spews out all of the preprocessed images for the first image into a folder
-preprocess.output_preprocessed(raw_training_dataset[0], "debug")
+preprocess.output_preprocessed(train_raw[0], "debug")
 
 num_features = preprocess.feature_count()
-print("Total Pixels: %d" %pixels)
+print("Train Pixels: %d" %train_pixel_cnt)
+print("Validation Pixels: %d" %validation_pixel_cnt)
+print("Test Pixels: %d" %test_pixel_cnt)
 print("Feature Vector Length: %d" %num_features)
 
 exit(0)
