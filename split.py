@@ -83,7 +83,7 @@ if(train_partition_start >= 0):
 # Write the validation set input file
 if(validation_partition_start >= 0):
 	file = open(VALIDATION_FILENAME, "w")
-	for i in range(train_partition_start, train_partition_end+1):
+	for i in range(validation_partition_start, validation_partition_end+1):
 		file.write(filenames[i] + "\n")
 	file.close()
 
