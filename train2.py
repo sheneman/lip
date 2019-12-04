@@ -31,35 +31,27 @@ seed(now)
 
 MODEL_FILENAME = "./models/classifier_MTYL17_100trees_no-maxdepth-ALLsigmas.model"
 
-#FILE_FILTER = "*.tif"
-#FILE_FILTER = "Po1g*.tif"
-#FILE_FILTER = "Po1g_100_12_024*.tif"
-#FILE_FILTER = "Po1g_100_12_*.tif"
-FILE_FILTER = "MTYL_17*.tif"
-
 THREADS = 30
 
 # Set some paths for our image library of raw and binary labeled data
 IMG_RAWPATH = "../images/raw"
 IMG_BINPATH = "../images/binary"
 
-# The fraction of the image library that will be used for training
-TRAIN_FRACTION = 0.75
+# Set the training and testing filenames here
+TRAINSET_FILENAME = "./train.txt"
+TESTSET_FILENAME  = "./test.txt"
 
-# Get all of the filenames that match the filter
-cwd = os.getcwd()
-os.chdir(IMG_RAWPATH)
-filenames = glob.glob(FILE_FILTER)
-os.chdir(cwd)
+trainset_filenames = [line.rstrip('\n') for line in open(TRAINSET_FILENAME)]
+testset_filenames = [line.rstrip('\n') for line in open(TESTSET_FILENAME)]
 
-# Load all of the files, extract all features.  This builds "dataset"
+# Load all of the files from the training set, extract all features.  This builds "dataset"
 # which is a list of feature arrays.  Every element in the list is 
 # a list of preprocessed images
 nfiles = 0
-raw_dataset = []
-bin_dataset = []
+raw_training_dataset = []
+bin_training_dataset = []
 pixels = 0
-for f in filenames:
+for f in trainset_filenames:
 	print("%d: [%s]" %(nfiles,f))
 	nfiles=nfiles+1
 	rawpath = IMG_RAWPATH + "/" + f
@@ -67,18 +59,19 @@ for f in filenames:
 	raw_img = Image.open(rawpath)
 	bin_img = Image.open(binpath)
 	pixels = pixels + raw_img.size[0] * raw_img.size[1]
-	raw_dataset.append(preprocess.image_preprocess(f, raw_img))
-	bin_dataset.append(numpy.array(bin_img))
+	raw_training_dataset.append(preprocess.image_preprocess(f, raw_img))
+	bin_training_dataset.append(numpy.array(bin_img))
 	raw_img.close()
 	bin_img.close()
-os.chdir(cwd)
 
 # this spews out all of the preprocessed images for the first image into a folder
-preprocess.output_preprocessed(raw_dataset[0], "debug")
+preprocess.output_preprocessed(raw_training_dataset[0], "debug")
 
 num_features = preprocess.feature_count()
 print("Total Pixels: %d" %pixels)
 print("Feature Vector Length: %d" %num_features)
+
+exit(0)
 
 
 #
