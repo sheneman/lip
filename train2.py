@@ -72,7 +72,7 @@ def build_dataset(filenames):
 		bin.append(numpy.array(bin_img))
 		raw_img.close()
 		bin_img.close()
-	return(raw, bin, pixels)
+	return(raw, bin, pixel_cnt)
 
 
 print("Loading Training Image Data...")
