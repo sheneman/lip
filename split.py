@@ -27,13 +27,13 @@ TRAIN_FILENAME      = "train_list.txt"
 VALIDATION_FILENAME = "validation_list.txt"
 TEST_FILENAME    = "test_list.txt"
 
-FILE_FILTER = "*.tif"
+FILE_FILTER = "Po1g*.tif"
 
 # The fraction of the image library that will be used for training, validation, and testing
 # The totals must add up to 1.0
-TRAIN_FRACTION      = 0.3333333
-VALIDATION_FRACTION = 0.3333333
-TEST_FRACTION       = 0.3333333
+TRAIN_FRACTION      = 0.15
+VALIDATION_FRACTION = 0.0
+TEST_FRACTION       = 0.85
 
 # Get all of the filenames that match the filter and shuffle them in place
 cwd = os.getcwd()
@@ -49,8 +49,8 @@ if(TRAIN_FRACTION < 0 or TRAIN_FRACTION > 1.0):
 	exit(-1)
 
 train_partition_start = 0
-train_partition_end = floor(num_filenames*TRAIN_FRACTION-1)
-validation_partition_size = floor(num_filenames*VALIDATION_FRACTION)
+train_partition_end = int(floor(num_filenames*TRAIN_FRACTION-1))
+validation_partition_size = int(floor(num_filenames*VALIDATION_FRACTION))
 if(train_partition_end == num_filenames-1):
 	test_partition_start = -1
 	test_partition_end   = -1
