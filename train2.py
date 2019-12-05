@@ -147,8 +147,6 @@ train_filenames      = [line.rstrip('\n') for line in open(TRAIN_FILENAME)]
 validation_filenames = [line.rstrip('\n') for line in open(VALIDATION_FILENAME)]
 test_filenames       = [line.rstrip('\n') for line in open(TEST_FILENAME)]
 
-print(train_filenames)
-
 print("Loading Training Image Data...")
 (train_raw, train_bin, train_pixel_cnt)                = build_dataset(train_filenames)
 print("Loading Validation Image Data...")
