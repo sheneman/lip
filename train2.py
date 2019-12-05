@@ -31,7 +31,7 @@ seed(now)
 
 MODEL_FILENAME = "./models/classifier_MTYL17_100trees_no-maxdepth-ALLsigmas.model"
 
-THREADS = 30
+THREADS = 7
 
 # Set some paths for our image library of raw and binary labeled data
 IMG_RAWPATH = "../images/raw"
@@ -42,12 +42,11 @@ TRAIN_FILENAME      = "./train_list.txt"
 VALIDATION_FILENAME = "./validation_list.txt"
 TEST_FILENAME       = "./test_list.txt"
 
-train_filenames      = [line.rstrip('\n') for line in open(TRAIN_FILENAME)]
-validation_filenames = [line.rstrip('\n') for line in open(VALIDATION_FILENAME)]
-test_filenames       = [line.rstrip('\n') for line in open(TEST_FILENAME)]
 
 
-
+#################################################################################################
+##  FUNCTION DEFINITIONS
+#################################################################################################
 #
 # function:  build_dataset()
 #
@@ -75,6 +74,81 @@ def build_dataset(filenames):
 	return(raw, bin, pixel_cnt)
 
 
+#
+# function: restructure_data()
+#
+# Now we need to reorganize the data into a long table of one pixel on each
+# row, with columns representing the features
+#
+def restructure_data(raw, binary, pixel_cnt, num_features):
+
+	nfiles = len(raw)
+
+	fcount = 0 
+	index = 0
+
+	# declare our new numpy array for handling raw data
+	raw_data = numpy.ndarray(shape=(pixel_cnt,num_features), dtype=numpy.float32)
+	print("Restructuring raw data...")
+	for file in raw:
+		numrows=len(file[0])
+		numcols=len(file[0][0])
+
+		for col in range(numcols):
+			for row in range(numrows):
+				for f in range(num_features):
+					raw_data[index][f]=file[f][row][col]
+				index = index + 1
+
+		# The code below prints nice status message
+		j = (fcount+1)/nfiles
+		sys.stdout.write('\r')
+		sys.stdout.write("[%-20s] %d%%" % ('='*int(20*j), 100*j))
+		sys.stdout.flush()
+
+		fcount = fcount + 1
+	print("\n")
+
+	# separately handle the binary labels
+	fcount = 0
+	index = 0
+	bin_data = numpy.ndarray(shape=pixel_cnt, dtype=numpy.float32)
+	print("Restructuring binary data...")
+	for file in binary:
+		numrows=len(file)
+		numcols=len(file[0])
+
+		for col in range(numcols):
+			for row in range(numrows):
+				bin_data[index]=file[row][col]
+				index = index + 1
+
+		# The code below prints nice status message
+		j = (fcount+1)/nfiles
+		sys.stdout.write('\r')
+		sys.stdout.write("[%-20s] %d%%" % ('='*int(20*j), 100*j))
+		sys.stdout.flush()
+
+		fcount = fcount + 1
+
+	print("\n")
+
+	return(raw_data, bin_data)
+
+#################################################################################################
+
+
+#
+#  MAIN CODE HERE
+#
+
+
+train_filenames      = [line.rstrip('\n') for line in open(TRAIN_FILENAME)]
+validation_filenames = [line.rstrip('\n') for line in open(VALIDATION_FILENAME)]
+test_filenames       = [line.rstrip('\n') for line in open(TEST_FILENAME)]
+
+print(train_filenames)
+
 print("Loading Training Image Data...")
 (train_raw, train_bin, train_pixel_cnt)                = build_dataset(train_filenames)
 print("Loading Validation Image Data...")
@@ -92,61 +166,18 @@ print("Validation Pixels: %d" %validation_pixel_cnt)
 print("Test Pixels: %d" %test_pixel_cnt)
 print("Feature Vector Length: %d" %num_features)
 
-exit(0)
 
+print("Serializing Training data:")
+(X_train, Y_train)           = restructure_data(train_raw, train_bin, train_pixel_cnt, num_features)
+print("Serializing Validation data:")
+(X_validation, Y_validation) = restructure_data(validation_raw, validation_bin, validation_pixel_cnt, num_features)
+print("Serializing Test data:")
+(X_test, Y_test)             = restructure_data(test_raw, test_bin, test_pixel_cnt, num_features)
 
-#
-# Now we need to reorganize the data into a long table of one pixel on each
-# row, with columns representing the features
-#
-print("\nRe-structuring loaded data for training...\n")
-
-fcount = 0 
-index = 0
-
-# declare our new numpy array for handling raw data
-raw_data = numpy.ndarray(shape=(pixels,num_features), dtype=numpy.float32)
-for file in raw_dataset:
-	numrows=len(file[0])
-	numcols=len(file[0][0])
-
-	for col in range(numcols):
-		for row in range(numrows):
-			for f in range(num_features):
-				raw_data[index][f]=file[f][row][col]
-			index = index + 1
-
-	# The code below prints nice status message
-	j = (fcount+1)/nfiles
-	sys.stdout.write('\r')
-	sys.stdout.write("[%-20s] %d%%" % ('='*int(20*j), 100*j))
-	sys.stdout.flush()
-
-	fcount = fcount + 1
-
-# separately handle the binary labels
-index = 0
-bin_data = numpy.ndarray(shape=pixels, dtype=numpy.float32)
-for file in bin_dataset:
-	numrows=len(file)
-	numcols=len(file[0])
-
-	for col in range(numcols):
-		for row in range(numrows):
-			bin_data[index]=file[row][col]
-			index = index + 1
-
-print("\n")
-print("pixels = %d, INDEX = %d" %(pixels,index))
-
-# Free up space in dataset
-del raw_dataset
-del bin_dataset
-
-X_train, X_test, Y_train, Y_test = train_test_split(raw_data, bin_data, test_size=(1-TRAIN_FRACTION))
+#X_train, X_test, Y_train, Y_test = train_test_split(raw_data, bin_data, test_size=(1-TRAIN_FRACTION))
 # free up space from data structure
-del raw_data
-del bin_data
+#del raw_data
+#del bin_data
 
 # print out testing and traininig sizes
 print("X_train: %d, X_test: %d, Y_train: %d, Y_test: %d" %(len(X_train), len(X_test), len(Y_train), len(Y_test)))
