@@ -31,9 +31,9 @@ FILE_FILTER = "Po1g*.tif"
 
 # The fraction of the image library that will be used for training, validation, and testing
 # The totals must add up to 1.0
-TRAIN_FRACTION      = 0.15
+TRAIN_FRACTION      = 0.95
 VALIDATION_FRACTION = 0.0
-TEST_FRACTION       = 0.85
+TEST_FRACTION       = 0.05
 
 # Get all of the filenames that match the filter and shuffle them in place
 cwd = os.getcwd()

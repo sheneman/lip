@@ -29,9 +29,9 @@ seed(now)
 
 
 
-MODEL_FILENAME = "./models/classifier_MTYL17_100trees_no-maxdepth-ALLsigmas.model"
+MODEL_FILENAME = "./models/classifier_Po1g_5percent_train_100trees_no-maxdepth-ALLsigmas.model"
 
-THREADS = 7
+THREADS = 25
 
 # Set some paths for our image library of raw and binary labeled data
 IMG_RAWPATH = "../images/raw"

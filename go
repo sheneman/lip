@@ -1,1 +1,1 @@
-venv/bin/activate
+lip_venv/bin/activate
