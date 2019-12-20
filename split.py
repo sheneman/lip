@@ -1,4 +1,6 @@
 import os
+import getopt
+import yaml
 from os import listdir
 from os.path import isfile, join
 import pprint
@@ -18,22 +20,103 @@ from math import floor
 now = int(time())
 seed(now)
 
+
+
+#################################################################################
+#
+# HANDLE Command line arguments
+#
+#
+def usage():
+        print("python split.pl [ --help | --verbose | --config=<YAML config filename> ] ")
+
+try:
+        opts, args = getopt.getopt(sys.argv[1:], "ho:v", ["help", "config="])
+except getopt.GetoptError as err:
+        print(err)  # will print something like "option -a not recognized"
+        usage()
+        sys.exit(2)
+
+configfile = None
+verbose = False
+
+for o, a in opts:
+        if o == "-v":
+                verbose = True
+        elif o in ("-h", "--help"):
+                print("Help, blah, blah...")
+                sys.exit()
+        elif o in ("-c", "--config"):
+                configfile = a
+        else:
+                assert False, "unhandled option"
+
+if(configfile == None):
+        print("Missing Argument.  Exiting")
+        usage()
+        exit(-1)
+
+#################################################################################
+
+#################################################################################
+#
+# Format and Example config YAML file:
+#
+# FORMAT:
+# -------
+#   rawdir: <path to raw images>
+#   bindir: <path to bin images>
+#   train_fraction: <fraction between 0 and 1.0>
+#   validation_fraction: <fraction between 0 and 1.0>
+#   test_fraction: <fraction between 0 and 1.0>
+#   file_filter: <posix file filter for selecting files>
+#   trainlist_out: <output path for training images>
+#   validationlist_out: <output path for validation images>
+#   testlist_out: <output path for test images>
+#
+# EXAMPLE: 
+# --------
+#   rawdir:              "../images/raw"
+#   bindir:              "../images/binary"
+#   train_fraction:      0.60
+#   validation_fraxtion: 0.20
+#   test_fraction:       0.20
+#   file_filter:         "Po1g_100_1*.tif"
+#   trainlist_out:       "./trainlist.txt"
+#   validationlist_out:  "./validationlist.txt"
+#   testlist_out:        "./testlist.txt"
+#
+#################################################################################
+
+cf = open(configfile, "r")
+config = yaml.load(cf, Loader=yaml.FullLoader)
+print("YAML CONFIG:")
+for c in config:
+	print("    [%s]:\"%s\"" %(c,config[c]))
+print("\n")
+cf.close()
+
+
 # Set some paths for our image library of raw and binary labeled data
-IMG_RAWPATH = "../images/raw"
-IMG_BINPATH = "../images/binary"
+IMG_RAWPATH = config["rawdir"]
+IMG_BINPATH = config["bindir"]
+
 
 # Set output filenames
-TRAIN_FILENAME      = "train_list.txt"
-VALIDATION_FILENAME = "validation_list.txt"
-TEST_FILENAME    = "test_list.txt"
+TRAIN_FILENAME      = config["trainlist_out"]
+VALIDATION_FILENAME = config["validationlist_out"]
+TEST_FILENAME       = config["testlist_out"]
 
-FILE_FILTER = "Po1g*.tif"
+FILE_FILTER         = config["file_filter"]
 
 # The fraction of the image library that will be used for training, validation, and testing
 # The totals must add up to 1.0
-TRAIN_FRACTION      = 0.95
-VALIDATION_FRACTION = 0.0
-TEST_FRACTION       = 0.05
+TRAIN_FRACTION      = config["train_fraction"]
+VALIDATION_FRACTION = config["validation_fraction"]
+TEST_FRACTION       = config["test_fraction"]
+
+
+
 
 # Get all of the filenames that match the filter and shuffle them in place
 cwd = os.getcwd()
