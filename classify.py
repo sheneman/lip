@@ -1,5 +1,7 @@
 from PIL import Image, ImageFilter
 import os 
+import getopt
+import yaml
 import pickle
 from os import listdir
 from os.path import isfile, join
@@ -15,7 +17,6 @@ from sklearn import metrics
 import glob
 from time import sleep
 import sys
-import getopt
 import math
 
 import preprocess
@@ -30,19 +31,16 @@ numpy.set_printoptions(threshold=sys.maxsize)
 #
 #
 def usage():
-	print("python classify.pl [ --help | --verbose | --rawdir=<rawdir> | --inputlist=<inputfile> | --model=<modelfile> | --outputdir=<outputdir> ]")
+	print("python train2.pl [ --help | --verbose | --config=<YAML config filename> ] ")
 
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "ho:v", ["help", "rawdir=", "inputlist=", "model=", "outputdir=" ])
+	opts, args = getopt.getopt(sys.argv[1:], "ho:v", ["help", "config="])
 except getopt.GetoptError as err:
-        print(err)  # will print something like "option -a not recognized"
-        usage()
-        sys.exit(2)
+	print(err)  # will print something like "option -a not recognized"
+	usage()
+	sys.exit(2)
 
-inputlist = None
-rawdir = None
-outputdir = None
-model = None
+configfile = None
 verbose = False
 
 for o, a in opts:
@@ -51,49 +49,68 @@ for o, a in opts:
 	elif o in ("-h", "--help"):
 		print("Help, blah, blah...")
 		sys.exit()
-	elif o in ("-r", "--rawdir"):
-		rawdir = a
-	elif o in ("-i", "--inputlist"):
-		inputlist = a
-	elif o in ("-m", "--model"):
-		model = a
-	elif o in ("-o", "--outputdir"):
-		outputdir = a
+	elif o in ("-c", "--config"):
+		configfile = a
 	else:
 		assert False, "unhandled option"
 
-if(rawdir == None or inputlist == None or outputdir == None or model == None):
+if(configfile == None):
 	print("Missing Argument.  Exiting")
 	usage()
-	exit(-1)	
+	exit(-1)
 
+#################################################################################
+
+#################################################################################
 #
+# Format and Example config YAML file:
+#
+# FORMAT:
+# -------
+#   inputlist:	<path to a text file that names which files to classify>
+#   rawdir: 	<path to raw images>
+#   model:	<path to the model to use for classification>
+#   outputdir:	<path to output folder>
+#
+# EXAMPLE:
+# --------
+#   inputlist:	"./input_filenames.txt"
+#   rawdir:	"../images/raw"
+#   model:	"./models/foo.model"
+#   outputdir:	"./output_directory"
 #
 #################################################################################
 
+cf = open(configfile, "r")
+config = yaml.load(cf, Loader=yaml.FullLoader)
+print("YAML CONFIG:")
+for c in config:
+	print("    [%s]:\"%s\"" %(c,config[c]))
+print("\n")
+cf.close()
 
 
-print("RAWDIR = %s, INPUTLIST = %s, MODEL = %s, OUTPUTDIR = %s" %(rawdir, inputlist, model, outputdir))
+print("RAWDIR = %s, INPUTLIST = %s, MODEL = %s, OUTPUTDIR = %s" %(config["rawdir"], config["inputlist"], config["model"], config["outputdir"]))
 
-filenames = [line.rstrip('\n') for line in open(inputlist)]
+filenames = [line.rstrip('\n') for line in open(config["inputlist"])]
 
 
 # Load the classifier model
-print("Loading classifier model = %s" %model)
-classifier = pickle.load(open(model,'rb'))
+print("Loading classifier model = %s" %config["model"])
+classifier = pickle.load(open(config["model"],'rb'))
 print("Model Loaded!")
 
 for filename in filenames:
 
 	print(filename)
 
-	output = outputdir + "/" + filename
+	output = config["outputdir"] + "/" + filename
 
 	# Load all of the files, extract all features.  This builds "dataset"
 	# which is a list of feature arrays.  Every element in the list is 
 	# a list of preprocessed images
 	#
-	rawpath = rawdir + "/" + filename
+	rawpath = config["rawdir"] + "/" + filename
 	print("Loading: %s" %rawpath)
 	raw_img = Image.open(rawpath)
 	img_data = preprocess.image_preprocess(filename, raw_img)

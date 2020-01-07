@@ -1,0 +1,4 @@
+inputlist:  "./inputlist.txt"
+rawdir:     "../images/raw"
+model:      "./models/foo.model"
+outputdir:  "./output"
