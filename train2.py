@@ -1,5 +1,7 @@
 from PIL import Image, ImageFilter
 import os
+import getopt
+import yaml
 import pickle
 from os import listdir
 from os.path import isfile, join
@@ -28,19 +30,75 @@ now = int(time())
 seed(now)
 
 
+#################################################################################
+#
+# HANDLE Command line arguments
+#
+#
+def usage():
+	print("python train2.pl [ --help | --verbose | --config=<YAML config filename> ] ")
 
-MODEL_FILENAME = "./models/classifier_Po1g_5percent_train_100trees_no-maxdepth-ALLsigmas.model"
+try:
+	opts, args = getopt.getopt(sys.argv[1:], "ho:v", ["help", "config="])
+except getopt.GetoptError as err:
+	print(err)  # will print something like "option -a not recognized"
+	usage()
+	sys.exit(2)
 
-THREADS = 25
+configfile = None
+verbose = False
 
-# Set some paths for our image library of raw and binary labeled data
-IMG_RAWPATH = "../images/raw"
-IMG_BINPATH = "../images/binary"
+for o, a in opts:
+	if o == "-v":
+		verbose = True
+	elif o in ("-h", "--help"):
+		print("Help, blah, blah...")
+		sys.exit()
+	elif o in ("-c", "--config"):
+		configfile = a
+	else:
+		assert False, "unhandled option"
 
-# Set the training and testing filenames here
-TRAIN_FILENAME      = "./train_list.txt"
-VALIDATION_FILENAME = "./validation_list.txt"
-TEST_FILENAME       = "./test_list.txt"
+if(configfile == None):
+	print("Missing Argument.  Exiting")
+	usage()
+	exit(-1)
+
+#################################################################################
+
+#################################################################################
+#
+# Format and Example config YAML file:
+#
+# FORMAT:
+# -------
+#   modelname: path and filename for pickled model output
+#   threads: integer specifying the number of parallel threads to use
+#   rawdir: <path to raw images>
+#   bindir: <path to bin images>
+#   trainlist: <input path for training images>
+#   validationlist: <input path for validation images>
+#   testlist: <input path for test images>
+#
+# EXAMPLE:
+# --------
+#   modelname:		"./models/new_model_file.model"
+#   threads:		25
+#   rawdir:             "../images/raw"
+#   bindir:             "../images/binary"
+#   trainlist:		"./trainlist.txt"
+#   validationlist:  	"./validationlist.txt"
+#   testlist:        	"./testlist.txt"
+#
+#################################################################################
+
+cf = open(configfile, "r")
+config = yaml.load(cf, Loader=yaml.FullLoader)
+print("YAML CONFIG:")
+for c in config:
+        print("    [%s]:\"%s\"" %(c,config[c]))
+print("\n")
+cf.close()
 
 
 
@@ -62,8 +120,8 @@ def build_dataset(filenames):
 	for f in filenames:
 		print("%d: [%s]" %(nfiles,f))
 		nfiles=nfiles+1
-		rawpath = IMG_RAWPATH + "/" + f
-		binpath = IMG_BINPATH + "/" + f
+		rawpath = config["rawdir"] + "/" + f
+		binpath = config["bindir"] + "/" + f
 		raw_img = Image.open(rawpath)
 		bin_img = Image.open(binpath)
 		pixel_cnt = pixel_cnt + raw_img.size[0] * raw_img.size[1]
@@ -143,9 +201,9 @@ def restructure_data(raw, binary, pixel_cnt, num_features):
 #
 
 
-train_filenames      = [line.rstrip('\n') for line in open(TRAIN_FILENAME)]
-validation_filenames = [line.rstrip('\n') for line in open(VALIDATION_FILENAME)]
-test_filenames       = [line.rstrip('\n') for line in open(TEST_FILENAME)]
+train_filenames      = [line.rstrip('\n') for line in open(config["trainlist"])]
+validation_filenames = [line.rstrip('\n') for line in open(config["validationlist"])]
+test_filenames       = [line.rstrip('\n') for line in open(config["testlist"])]
 
 print("Loading Training Image Data...")
 (train_raw, train_bin, train_pixel_cnt)                = build_dataset(train_filenames)
@@ -182,11 +240,11 @@ print("X_train: %d, X_test: %d, Y_train: %d, Y_test: %d" %(len(X_train), len(X_t
 
 # Train the model
 print("Training the Random Forest")
-#classifier = RandomForestClassifier(n_estimators=100, max_depth=32, verbose=2, n_jobs=THREADS)
-classifier = RandomForestClassifier(n_estimators=100, verbose=2, n_jobs=THREADS)
+#classifier = RandomForestClassifier(n_estimators=100, max_depth=32, verbose=2, n_jobs=config["threads"])
+classifier = RandomForestClassifier(n_estimators=100, verbose=2, n_jobs=config["threads"])
 classifier.fit(X_train, Y_train)
 print("DUMPING MODEL")
-pickle.dump(classifier, open(MODEL_FILENAME,'wb'))
+pickle.dump(classifier, open(config["modelname"],'wb'))
 
 # generate predictions against our test set
 Y_pred = classifier.predict(X_test)

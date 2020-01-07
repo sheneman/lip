@@ -1,0 +1,7 @@
+modelname:          "./models/new_model_file.model"
+threads:            25
+rawdir:             "../images/raw"
+bindir:             "../images/binary"
+trainlist:          "./trainlist.txt"
+validationlist:     "./validationlist.txt"
+testlist:           "./testlist.txt"
