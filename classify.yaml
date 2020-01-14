@@ -1,4 +1,4 @@
-inputlist:  "./inputlist.txt"
+inputlist:  "./testlist.txt"
 rawdir:     "../images/raw"
-model:      "./models/foo.model"
+model:      "./models/MTYL_100_nomask_50percent_train.model"
 outputdir:  "./output"

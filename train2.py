@@ -74,8 +74,10 @@ if(configfile == None):
 # -------
 #   modelname: path and filename for pickled model output
 #   threads: integer specifying the number of parallel threads to use
+#   mask: <0 or 1> - whether to use masks or not
 #   rawdir: <path to raw images>
 #   bindir: <path to bin images>
+#   maskdir: <path to binary image mask files>
 #   trainlist: <input path for training images>
 #   validationlist: <input path for validation images>
 #   testlist: <input path for test images>
@@ -84,8 +86,10 @@ if(configfile == None):
 # --------
 #   modelname:		"./models/new_model_file.model"
 #   threads:		25
+#   mask:		1
 #   rawdir:             "../images/raw"
 #   bindir:             "../images/binary"
+#   maskdir:		"../images/mask"
 #   trainlist:		"./trainlist.txt"
 #   validationlist:  	"./validationlist.txt"
 #   testlist:        	"./testlist.txt"
@@ -96,7 +100,7 @@ cf = open(configfile, "r")
 config = yaml.load(cf, Loader=yaml.FullLoader)
 print("YAML CONFIG:")
 for c in config:
-        print("    [%s]:\"%s\"" %(c,config[c]))
+	print("    [%s]:\"%s\"" %(c,config[c]))
 print("\n")
 cf.close()
 
@@ -105,6 +109,29 @@ cf.close()
 #################################################################################################
 ##  FUNCTION DEFINITIONS
 #################################################################################################
+#
+# function: apply_mask()
+#
+# Apply a binary image mask representing the cell of interest in the frame
+# Value of 0 represents NOT A CELL
+# Any Non-Zero value represents CELL.  (usually specified as 255)
+#
+def apply_mask(raw_image, mask_image):
+	raw_array  = numpy.array(raw_image)
+	mask_array = numpy.array(mask_image)
+	(numrows,numcols) = raw_array.shape
+
+	for c in range(numcols):
+		for r in range(numrows):
+			if(mask_array[r][c] == 0):
+				raw_array[r][c] = 0
+
+	masked_raw = Image.fromarray(raw_array);
+	return(masked_raw)
+
+
+
+##################################################################################################
 #
 # function:  build_dataset()
 #
@@ -124,6 +151,12 @@ def build_dataset(filenames):
 		binpath = config["bindir"] + "/" + f
 		raw_img = Image.open(rawpath)
 		bin_img = Image.open(binpath)
+
+		if(config["mask"] == 1):
+			maskpath = config["maskdir"] + "/" + f
+			mask_img = Image.open(maskpath)
+			raw_img = apply_mask(raw_img, mask_img)
+
 		pixel_cnt = pixel_cnt + raw_img.size[0] * raw_img.size[1]
 		raw.append(preprocess.image_preprocess(f, raw_img))
 		bin.append(numpy.array(bin_img))
@@ -132,6 +165,9 @@ def build_dataset(filenames):
 	return(raw, bin, pixel_cnt)
 
 
+
+
+##################################################################################################
 #
 # function: restructure_data()
 #

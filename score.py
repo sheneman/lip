@@ -1,3 +1,5 @@
+import getopt
+import yaml
 from PIL import Image
 from os import listdir
 from os.path import isfile, join
@@ -6,11 +8,68 @@ import re
 from pprint import pprint
 
 
-BINARY_PATH = "../images/binary"
-OUTPUT_PATH = "./output_Po1g"
-
-
 pattern = re.compile(".*tif")
+
+
+#################################################################################
+#
+# HANDLE Command line arguments
+#
+#
+def usage():
+	print("python score.pl [ --help | --verbose | --config=<YAML config filename> ] ")
+
+try:
+	opts, args = getopt.getopt(sys.argv[1:], "ho:v", ["help", "config="])
+except getopt.GetoptError as err:
+	print(err)  # will print something like "option -a not recognized"
+	usage()
+	sys.exit(2)
+
+configfile = None
+verbose = False
+
+for o, a in opts:
+	if o == "-v":
+		verbose = True
+	elif o in ("-h", "--help"):
+		print("Help, blah, blah...")
+		sys.exit()
+	elif o in ("-c", "--config"):
+		configfile = a
+	else:
+		assert False, "unhandled option"
+
+if(configfile == None):
+	print("Missing Argument.  Exiting")
+	usage()
+	exit(-1)
+
+#################################################################################
+
+#################################################################################
+#
+# Format and Example config YAML file:
+#
+# FORMAT:
+# -------
+#   bindir: <path to bin images>
+#   inputdir: <input directory with classified images>
+#
+# EXAMPLE:
+# --------
+#   bindir:             "../images/binary"
+#   inputdir:        	"./classified_images_directory"
+#
+#################################################################################
+
+cf = open(configfile, "r")
+config = yaml.load(cf, Loader=yaml.FullLoader)
+print("YAML CONFIG:")
+for c in config:
+        print("    [%s]:\"%s\"" %(c,config[c]))
+print("\n")
+cf.close()
 
 
 ###############################################
@@ -20,14 +79,14 @@ pattern = re.compile(".*tif")
 
 print("FILENAME,True Positives,False Positives,True Negatives,False Negatives,DICE,Jaccard,F0.5,Precision,Recall");
 
-filelist = [f for f in listdir(OUTPUT_PATH) if isfile(join(OUTPUT_PATH, f))]
+filelist = [f for f in listdir(config["inputdir"]) if isfile(join(config["inputdir"], f))]
 for f in filelist:
 	if(pattern.match(f)):
 
 #		print(f + ",",end="")
 
-		binary_fullpath = BINARY_PATH + '/' + f
-		output_fullpath = OUTPUT_PATH + '/' + f
+		binary_fullpath = config["bindir"] + '/' + f
+		output_fullpath = config["inputdir"] + '/' + f
 
 		binary_img = Image.open(binary_fullpath)
 		output_img = Image.open(output_fullpath)

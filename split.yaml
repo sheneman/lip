@@ -1,9 +1,10 @@
 rawdir:              "../images/raw"
 bindir:              "../images/binary"
-train_fraction:      0.60
-validation_fraction: 0.20
-test_fraction:       0.20
-file_filter:         "Po1g_100*.tif"
+train_fraction:      0.01
+validation_fraction: 0.0
+test_fraction:       0.50
+#file_filter:         "MTYL_100*.tif"
+file_filter:         "*"
 trainlist_out:       "./trainlist.txt"
 validationlist_out:  "./validationlist.txt"
 testlist_out:        "./testlist.txt"

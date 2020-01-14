@@ -3,6 +3,7 @@ from os import listdir
 from os.path import isfile, join
 import numpy
 import scipy
+import cv2
 from scipy.ndimage.filters import gaussian_filter
 from skimage import feature
 from random import seed
@@ -12,6 +13,32 @@ AGE_CLASSES = [ "MTYL_17", "MTYL_28", "MTYL_52", "MTYL_76", "MTYL_100", "MTYL_12
 
 SIGMAS = [ 0.3, 0.7, 1.0, 1.6, 3.5, 5.0, 10.0 ]
 #SIGMAS = [ 0.3 ]
+
+
+
+#################################################################################################################
+#
+# From Adrian Rosebrock
+#
+# https://www.pyimagesearch.com/2015/04/06/zero-parameter-automatic-canny-edge-detection-with-python-and-opencv/
+#
+#
+def auto_canny(img, sigma=0.33):
+
+	# preprocess to smooth out details
+	#img = cv2.GaussianBlur(img, (3, 3), 0)
+
+	# compute the median of the single channel pixel intensities
+	v = numpy.median(img)
+ 
+	# apply automatic Canny edge detection using the computed median
+	lower = int(max(0, (1.0 - sigma) * v)/4)
+	upper = int(min(255, (1.0 + sigma) * v))
+	print("lower=%d,upper=%d" %(lower,upper))
+	edged = cv2.Canny(img, lower, upper)
+ 
+	# return the edged image
+	return edged
 
 
 #
