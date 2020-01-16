@@ -12,6 +12,8 @@ from scipy.ndimage.filters import gaussian_filter
 from skimage import feature
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.feature_selection import SelectFromModel
+from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn import metrics
 import glob
@@ -78,6 +80,9 @@ if(configfile == None):
 #   rawdir: <path to raw images>
 #   bindir: <path to bin images>
 #   maskdir: <path to binary image mask files>
+#   feat_select: <0 or 1> - whether to do explicit feature selection or not
+#   feat_thresh: <String: "mean" or "median" OR float representing threshold for keeping feature
+#   feat_max: <Integer or  None"> - The maximum number of features above feat_thresh to retain
 #   trainlist: <input path for training images>
 #   validationlist: <input path for validation images>
 #   testlist: <input path for test images>
@@ -90,6 +95,9 @@ if(configfile == None):
 #   rawdir:             "../images/raw"
 #   bindir:             "../images/binary"
 #   maskdir:		"../images/mask"
+#   feat_select:        1
+#   feat_thresh:        "mean"
+#   feat_max:           "None"
 #   trainlist:		"./trainlist.txt"
 #   validationlist:  	"./validationlist.txt"
 #   testlist:        	"./testlist.txt"
@@ -109,26 +117,6 @@ cf.close()
 #################################################################################################
 ##  FUNCTION DEFINITIONS
 #################################################################################################
-#
-# function: apply_mask()
-#
-# Apply a binary image mask representing the cell of interest in the frame
-# Value of 0 represents NOT A CELL
-# Any Non-Zero value represents CELL.  (usually specified as 255)
-#
-def apply_mask(raw_image, mask_image):
-	raw_array  = numpy.array(raw_image)
-	mask_array = numpy.array(mask_image)
-	(numrows,numcols) = raw_array.shape
-
-	for c in range(numcols):
-		for r in range(numrows):
-			if(mask_array[r][c] == 0):
-				raw_array[r][c] = 0
-
-	masked_raw = Image.fromarray(raw_array);
-	return(masked_raw)
-
 
 
 ##################################################################################################
@@ -155,13 +143,14 @@ def build_dataset(filenames):
 		if(config["mask"] == 1):
 			maskpath = config["maskdir"] + "/" + f
 			mask_img = Image.open(maskpath)
-			raw_img = apply_mask(raw_img, mask_img)
+			raw_img = preprocess.apply_mask(raw_img, mask_img)
 
 		pixel_cnt = pixel_cnt + raw_img.size[0] * raw_img.size[1]
 		raw.append(preprocess.image_preprocess(f, raw_img))
 		bin.append(numpy.array(bin_img))
 		raw_img.close()
 		bin_img.close()
+
 	return(raw, bin, pixel_cnt)
 
 
@@ -237,6 +226,14 @@ def restructure_data(raw, binary, pixel_cnt, num_features):
 #
 
 
+#
+# get feature labels
+#
+flabels = preprocess.feature_labels()
+print("Number of Feature Labels: %d" %(len(flabels)))
+print(flabels)
+
+
 train_filenames      = [line.rstrip('\n') for line in open(config["trainlist"])]
 validation_filenames = [line.rstrip('\n') for line in open(config["validationlist"])]
 test_filenames       = [line.rstrip('\n') for line in open(config["testlist"])]
@@ -278,7 +275,17 @@ print("X_train: %d, X_test: %d, Y_train: %d, Y_test: %d" %(len(X_train), len(X_t
 print("Training the Random Forest")
 #classifier = RandomForestClassifier(n_estimators=100, max_depth=32, verbose=2, n_jobs=config["threads"])
 classifier = RandomForestClassifier(n_estimators=100, verbose=2, n_jobs=config["threads"])
+
 classifier.fit(X_train, Y_train)
+
+# Output the most important features to a telemetry file
+
+feature_file = open(config["importance"], "w")
+for feature in sorted(zip(flabels, classifier.feature_importances_), key=lambda x: x[1], reverse=True):
+	feature_file.write("%s,%f\n" %feature)
+feature_file.close()
+
+
 print("DUMPING MODEL")
 pickle.dump(classifier, open(config["modelname"],'wb'))
 

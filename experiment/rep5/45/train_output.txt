@@ -1,0 +1,13 @@
+Failed to import the site module
+Traceback (most recent call last):
+  File "/opt/rh/rh-python36/root/usr/lib64/python3.6/site.py", line 548, in <module>
+    main()
+  File "/opt/rh/rh-python36/root/usr/lib64/python3.6/site.py", line 531, in main
+    known_paths = venv(known_paths)
+  File "/opt/rh/rh-python36/root/usr/lib64/python3.6/site.py", line 455, in venv
+    for line in f:
+OSError: [Errno 22] Invalid argument
+
+real	0m0.025s
+user	0m0.015s
+sys	0m0.007s

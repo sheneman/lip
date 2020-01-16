@@ -1,5 +1,6 @@
 import getopt
 import yaml
+import sys
 from PIL import Image
 from os import listdir
 from os.path import isfile, join

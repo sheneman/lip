@@ -16,6 +16,29 @@ SIGMAS = [ 0.3, 0.7, 1.0, 1.6, 3.5, 5.0, 10.0 ]
 
 
 
+##################################################################################
+#
+# function: apply_mask()
+#
+# Apply a binary image mask representing the cell of interest in the frame
+# Value of 0 represents NOT A CELL
+# Any Non-Zero value represents CELL.  (usually specified as 255)
+#
+def apply_mask(raw_image, mask_image):
+	raw_array  = numpy.array(raw_image)
+	mask_array = numpy.array(mask_image)
+	(numrows,numcols) = raw_array.shape
+
+	for c in range(numcols):
+		for r in range(numrows):
+			if(mask_array[r][c] == 0):
+				raw_array[r][c] = 0
+
+	masked_raw = Image.fromarray(raw_array);
+	return(masked_raw)
+
+
+
 #################################################################################################################
 #
 # From Adrian Rosebrock
@@ -119,10 +142,63 @@ def label_age(img_array, age, filename):
 
 
 
+#
+# The structure of this function must match the structure of the image_preprocess() function
+# exactly in order for feature labels to match 
+#
+def feature_labels(sigmas = SIGMAS):
+
+	labels = []
+
+	labels.append("Original")	
+
+	for age in AGE_CLASSES:
+		labels.append(age)	
+
+	for s in sigmas:
+		# Gaussian Smoothing
+		l = "Gaussian_Smoothing_" + str(s)
+		labels.append(l)
+
+		# Sobel Edge Detection
+		l = "Sobel_Edge_Detection_" + str(s)
+		labels.append(l)
+
+		# Laplacian of Gaussian Edge Detection
+		l = "Laplacian_of_Gaussian_Edge_Detection_" + str(s)
+		labels.append(l)
+
+		# Gaussian Gradient Magnitude Edge Detection
+		l = "Gaussian_Gradient_Magnitude_Edge_Detection_" + str(s)
+		labels.append(l)
+
+		# Difference of Gaussians
+		l = "Difference_of_Gaussians_" + str(s)
+		labels.append(l)
+
+		# Structure Tensor Eigenvalues
+		l = "Structure_Tensor_Eigenvalues_Large_" + str(s)
+		labels.append(l)
+		l = "Structure_Tensor_Eigenvalues_Small_" + str(s)
+		labels.append(l)
+
+		# Hessian Matrix
+		l = "Hessian_Matrix_Hrr_" + str(s)
+		labels.append(l)
+		l = "Hessian_Matrix_Hrc_" + str(s)
+		labels.append(l)
+		l = "Hessian_Matrix_Hcc_" + str(s)
+		labels.append(l)
+
+	return(labels)
+
+
+
 def image_preprocess(filename, original_image, sigmas = SIGMAS):
 
 	image_list = []
 	original_image_array = numpy.array(original_image)
+
 	image_list.append(original_image_array);
 
 	for age in AGE_CLASSES:
@@ -152,7 +228,7 @@ def image_preprocess(filename, original_image, sigmas = SIGMAS):
 		tmp2_array = scipy.ndimage.gaussian_filter(original_image_array, sigma=s)
 		dog = tmp1_array - tmp2_array
 		image_list.append(dog)
-
+		
 		# Structure Tensor Eigenvalues
 		Axx,Axy,Ayy = feature.structure_tensor(original_image, sigma=s)
 		large_array,small_array = feature.structure_tensor_eigvals(Axx,Axy,Ayy)
@@ -173,7 +249,6 @@ def image_preprocess(filename, original_image, sigmas = SIGMAS):
 		#image_list.append(wang_function(original_image, 5))
 
 	return(image_list)
-
 
 
 def output_preprocessed(images, dir):

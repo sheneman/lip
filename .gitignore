@@ -3,7 +3,9 @@ lip_venv
 venv
 clear
 models/
+circlesout/
 output/
+output_masked/
 scores/
 filelist*
 debug/*.tif

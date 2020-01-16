@@ -1,0 +1,19 @@
+YAML CONFIG:
+    [inputlist]:"./testlist.txt"
+    [rawdir]:"/nethome/sheneman/src/images/raw"
+    [model]:"./model.model"
+    [outputdir]:"./output"
+    [mask]:"0"
+    [maskdir]:"/nethome/sheneman/src/images/mask"
+
+
+RAWDIR = /nethome/sheneman/src/images/raw, INPUTLIST = ./testlist.txt, MODEL = ./model.model, OUTPUTDIR = ./output
+Loading classifier model = ./model.model
+Traceback (most recent call last):
+  File "/nethome/sheneman/src/lip/classify.py", line 105, in <module>
+    classifier = pickle.load(open(config["model"],'rb'))
+FileNotFoundError: [Errno 2] No such file or directory: './model.model'
+
+real	0m10.641s
+user	0m6.651s
+sys	0m7.624s

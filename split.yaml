@@ -1,8 +1,8 @@
-rawdir:              "../images/raw"
-bindir:              "../images/binary"
-train_fraction:      0.01
-validation_fraction: 0.0
-test_fraction:       0.50
+rawdir:              "/nethome/sheneman/src/images/raw"
+bindir:              "/nethome/sheneman/src/images/binary"
+train_fraction:      0.95
+validation_fraction: 0.00
+test_fraction:       0.05
 #file_filter:         "MTYL_100*.tif"
 file_filter:         "*"
 trainlist_out:       "./trainlist.txt"

@@ -1,9 +1,0 @@
-modelname:          "./models/MTYL_100_nomask_50percent_train.model"
-threads:            25
-mask:               0
-rawdir:             "../images/raw"
-bindir:             "../images/binary"
-maskdir:            "../images/mask"
-trainlist:          "./trainlist.txt"
-validationlist:     "./validationlist.txt"
-testlist:           "./testlist.txt"
