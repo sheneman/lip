@@ -1,2 +1,2 @@
 bindir:          "/nethome/sheneman/src/images/binary"
-inputdir:        "./output32"
+inputdir:        "./output"

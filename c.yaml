@@ -1,6 +1,0 @@
-inputlist:      "./testlist.txt"
-rawdir:         "/nethome/sheneman/src/images/raw"
-model:          "./models/model8.model"
-outputdir:      "./output8"
-mask:           0
-maskdir:        "/nethome/sheneman/src/images/mask"

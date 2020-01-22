@@ -1,4 +1,4 @@
-modelname:              "./models/model32.model"
+modelname:              "./models/model.model"
 threads:                50
 mask:                   0
 rawdir:                 "/nethome/sheneman/src/images/raw"
