@@ -7,6 +7,7 @@ from os import listdir
 from os.path import isfile, join
 import numpy
 import scipy
+import cv2
 import pprint
 from scipy.ndimage.filters import gaussian_filter
 from skimage import feature
@@ -28,9 +29,8 @@ import preprocess
 
 
 # set our random seed based on current time
-#now = int(time())
-#seed(now)
-seed(1)
+now = int(time())
+seed(now)
 
 
 #################################################################################
@@ -139,6 +139,14 @@ def build_dataset(filenames):
 		rawpath = config["rawdir"] + "/" + f
 		binpath = config["bindir"] + "/" + f
 		raw_img = Image.open(rawpath)
+		raw_cv2 = numpy.array(raw_img)
+
+		raw_cv2 = cv2.normalize(raw_cv2,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+		raw_cv2 = cv2.equalizeHist(raw_cv2)
+
+		raw_img.close()
+		raw_img = Image.fromarray(raw_cv2)
+
 		bin_img = Image.open(binpath)
 
 		if(config["mask"] == 1):
@@ -149,7 +157,7 @@ def build_dataset(filenames):
 		pixel_cnt = pixel_cnt + raw_img.size[0] * raw_img.size[1]
 		raw.append(preprocess.image_preprocess(f, raw_img))
 		bin.append(numpy.array(bin_img))
-		raw_img.close()
+	
 		bin_img.close()
 
 	return(raw, bin, pixel_cnt)
@@ -172,7 +180,7 @@ def restructure_data(raw, binary, pixel_cnt, num_features):
 	index = 0
 
 	# declare our new numpy array for handling raw data
-	raw_data = numpy.ndarray(shape=(pixel_cnt,num_features), dtype=numpy.float32)
+	raw_data = numpy.ndarray(shape=(pixel_cnt,num_features), dtype=numpy.uint8)
 	print("Restructuring raw data...")
 	for file in raw:
 		numrows=len(file[0])
@@ -196,7 +204,7 @@ def restructure_data(raw, binary, pixel_cnt, num_features):
 	# separately handle the binary labels
 	fcount = 0
 	index = 0
-	bin_data = numpy.ndarray(shape=pixel_cnt, dtype=numpy.float32)
+	bin_data = numpy.ndarray(shape=pixel_cnt, dtype=numpy.uint8)
 	print("Restructuring binary data...")
 	for file in binary:
 		numrows=len(file)

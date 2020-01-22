@@ -4,6 +4,7 @@ venv
 clear
 models/
 circlesout/
+experiment/
 output/
 output_masked/
 scores/
