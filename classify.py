@@ -7,6 +7,7 @@ from os import listdir
 from os.path import isfile, join
 import numpy
 import scipy
+import cv2
 import pandas as pd
 import pprint
 from scipy.ndimage.filters import gaussian_filter
@@ -94,11 +95,8 @@ for c in config:
 print("\n")
 cf.close()
 
-
-print("RAWDIR = %s, INPUTLIST = %s, MODEL = %s, OUTPUTDIR = %s" %(config["rawdir"], config["inputlist"], config["model"], config["outputdir"]))
-
+# get the list of raw files to classify
 filenames = [line.rstrip('\n') for line in open(config["inputlist"])]
-
 
 # Load the classifier model
 print("Loading classifier model = %s" %config["model"])
@@ -118,6 +116,15 @@ for filename in filenames:
 	rawpath = config["rawdir"] + "/" + filename
 	print("Loading: %s" %rawpath)
 	raw_img = Image.open(rawpath)
+
+	raw_cv2 = numpy.array(raw_img)
+
+	raw_cv2 = cv2.normalize(raw_cv2,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+	raw_cv2 = cv2.equalizeHist(raw_cv2)
+
+	raw_img.close()
+	raw_img = Image.fromarray(raw_cv2)
+
 	img_data = preprocess.image_preprocess(filename, raw_img)
 	numcols,numrows = raw_img.size
 
@@ -135,7 +142,7 @@ for filename in filenames:
 	index = 0
 
 	# declare our new numpy array 
-	data = numpy.ndarray(shape=((numrows*numcols),num_features), dtype=numpy.float32)
+	data = numpy.ndarray(shape=((numrows*numcols),num_features), dtype=numpy.uint8)
 
 	for col in range(numcols):
 		for row in range(numrows):
@@ -147,9 +154,10 @@ for filename in filenames:
 
 	# classify our input pixel
 	Y_pred = classifier.predict(data)
-	Y_8bit = Y_pred.astype("u1")   
+	#Y_8bit = Y_pred.astype("u1")   
 
-	predicted_array = numpy.reshape(Y_8bit,(numrows,numcols),order='F')
+	#predicted_array = numpy.reshape(Y_8bit,(numrows,numcols),order='F')
+	predicted_array = numpy.reshape(Y_pred,(numrows,numcols),order='F')
 
 	predicted_image = Image.fromarray(predicted_array)
 	
