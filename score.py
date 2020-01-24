@@ -1,6 +1,7 @@
 import getopt
 import yaml
 import sys
+import cv2
 from PIL import Image
 from os import listdir
 from os.path import isfile, join
@@ -78,7 +79,7 @@ cf.close()
 # Iterate through all images and try all methods
 #
 
-print("FILENAME,True Positives,False Positives,True Negatives,False Negatives,DICE,Jaccard,F0.5,Precision,Recall");
+print("FILENAME,True Positives,False Positives,True Negatives,False Negatives,TM_CCORR_NORMED,DICE,Jaccard,F0.5,Precision,Recall");
 
 filelist = [f for f in listdir(config["inputdir"]) if isfile(join(config["inputdir"], f))]
 for f in filelist:
@@ -94,6 +95,9 @@ for f in filelist:
 
 		binary_imgarray = numpy.array(binary_img)
 		output_imgarray = numpy.array(output_img)
+
+		# OpenCV2 Template Cross-Correlation Normalized (TM_CCORR_NORMED)
+		tm_ccorr = cv2.matchTemplate(output_imgarray,binary_imgarray,cv2.TM_CCORR_NORMED)[0][0]
 
 		numrows=len(binary_imgarray)
 		numcols=len(binary_imgarray[0])
@@ -177,7 +181,8 @@ for f in filelist:
 			RECALL = numerator/denominator
 
 
+
 		# output the row
-		output = f + ',' + str(TP) + ',' + str(FP) + ',' + str(TN) + ',' + str(FN) + ',' + str(DICE) + ',' + str(JACCARD) + ',' + str(F05) + ',' + str(PRECISION) + ',' + str(RECALL);
+		output = f + ',' + str(TP) + ',' + str(FP) + ',' + str(TN) + ',' + str(FN) + ',' + str(tm_ccorr) + ',' + str(DICE) + ',' + str(JACCARD) + ',' + str(F05) + ',' + str(PRECISION) + ',' + str(RECALL);
 		print(output);
 
