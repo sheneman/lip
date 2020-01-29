@@ -1,4 +1,7 @@
 __pycache__
+trainlist.txt
+validationlist.txt
+testlist.txt
 lip_venv
 venv
 clear

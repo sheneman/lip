@@ -30,7 +30,10 @@ import preprocess
 
 # set our random seed based on current time
 now = int(time())
-seed(now)
+
+# SHENEMAN - UNCOMMENT SEED CALL BELOW WHEN DONE TESTING
+seed(2)
+numpy.random.seed(2)
 
 
 #################################################################################
@@ -77,10 +80,8 @@ if(configfile == None):
 # -------
 #   modelname: path and filename for pickled model output
 #   threads: integer specifying the number of parallel threads to use
-#   mask: <0 or 1> - whether to use masks or not
 #   rawdir: <path to raw images>
 #   bindir: <path to bin images>
-#   maskdir: <path to binary image mask files>
 #   feat_select: <0 or 1> - whether to do explicit feature selection or not
 #   feat_thresh: <String: "mean" or "median" OR float representing threshold for keeping feature
 #   feat_max: <Integer or  None"> - The maximum number of features above feat_thresh to retain
@@ -92,10 +93,8 @@ if(configfile == None):
 # --------
 #   modelname:		"./models/new_model_file.model"
 #   threads:		25
-#   mask:		1
 #   rawdir:             "../images/raw"
 #   bindir:             "../images/binary"
-#   maskdir:		"../images/mask"
 #   feat_select:        1
 #   feat_thresh:        "mean"
 #   feat_max:           "None"
@@ -129,13 +128,15 @@ cf.close()
 # a list of preprocessed images
 
 def build_dataset(filenames):
-	nfiles = 0
-	raw = []
-	bin = []
+
+	#
+	# NOTE possibly faster would be to do an initial pass to load all images into an array of images while counting total pixels.  Then use that to allocate the big array and then populate
+	#
+
+	index = 0
 	pixel_cnt = 0
 	for f in filenames:
-		print("%d: [%s]" %(nfiles,f))
-		nfiles=nfiles+1
+		print("%d: [%s]" %(index,f))
 		rawpath = config["rawdir"] + "/" + f
 		binpath = config["bindir"] + "/" + f
 		raw_img = Image.open(rawpath)
@@ -149,83 +150,21 @@ def build_dataset(filenames):
 
 		bin_img = Image.open(binpath)
 
-		if(config["mask"] == 1):
-			maskpath = config["maskdir"] + "/" + f
-			mask_img = Image.open(maskpath)
-			raw_img = preprocess.apply_mask(raw_img, mask_img)
-
 		pixel_cnt = pixel_cnt + raw_img.size[0] * raw_img.size[1]
-		raw.append(preprocess.image_preprocess(f, raw_img))
-		bin.append(numpy.array(bin_img))
+
+		if(index == 0):
+			raw = preprocess.image_preprocess(f, raw_img)
+			bin = numpy.array(bin_img).flatten(order='F')
+		else:
+			raw = numpy.vstack((raw,preprocess.image_preprocess(f, raw_img)))
+			bin = numpy.concatenate((bin,numpy.array(bin_img).flatten(order='F')))
 	
 		bin_img.close()
+	
+		index += 1
 
 	return(raw, bin, pixel_cnt)
 
-
-
-
-##################################################################################################
-#
-# function: restructure_data()
-#
-# Now we need to reorganize the data into a long table of one pixel on each
-# row, with columns representing the features
-#
-def restructure_data(raw, binary, pixel_cnt, num_features):
-
-	nfiles = len(raw)
-
-	fcount = 0 
-	index = 0
-
-	# declare our new numpy array for handling raw data
-	raw_data = numpy.ndarray(shape=(pixel_cnt,num_features), dtype=numpy.uint8)
-	print("Restructuring raw data...")
-	for file in raw:
-		numrows=len(file[0])
-		numcols=len(file[0][0])
-
-		for col in range(numcols):
-			for row in range(numrows):
-				for f in range(num_features):
-					raw_data[index][f]=file[f][row][col]
-				index = index + 1
-
-		# The code below prints nice status message
-		j = (fcount+1)/nfiles
-		sys.stdout.write('\r')
-		sys.stdout.write("[%-20s] %d%%" % ('='*int(20*j), 100*j))
-		sys.stdout.flush()
-
-		fcount = fcount + 1
-	print("\n")
-
-	# separately handle the binary labels
-	fcount = 0
-	index = 0
-	bin_data = numpy.ndarray(shape=pixel_cnt, dtype=numpy.uint8)
-	print("Restructuring binary data...")
-	for file in binary:
-		numrows=len(file)
-		numcols=len(file[0])
-
-		for col in range(numcols):
-			for row in range(numrows):
-				bin_data[index]=file[row][col]
-				index = index + 1
-
-		# The code below prints nice status message
-		j = (fcount+1)/nfiles
-		sys.stdout.write('\r')
-		sys.stdout.write("[%-20s] %d%%" % ('='*int(20*j), 100*j))
-		sys.stdout.flush()
-
-		fcount = fcount + 1
-
-	print("\n")
-
-	return(raw_data, bin_data)
 
 #################################################################################################
 
@@ -248,15 +187,40 @@ validation_filenames = [line.rstrip('\n') for line in open(config["validationlis
 test_filenames       = [line.rstrip('\n') for line in open(config["testlist"])]
 
 print("Loading Training Image Data...")
-(train_raw, train_bin, train_pixel_cnt)                = build_dataset(train_filenames)
+(X_train, Y_train, train_pixel_cnt)                = build_dataset(train_filenames)
 print("Loading Validation Image Data...")
-(validation_raw, validation_bin, validation_pixel_cnt) = build_dataset(validation_filenames)
+(X_validation, Y_validation, validation_pixel_cnt) = build_dataset(validation_filenames)
 print("Loading Testing Image Data...")
-(test_raw, test_bin, test_pixel_cnt)                   = build_dataset(test_filenames)
+(X_test, Y_test, test_pixel_cnt)                   = build_dataset(test_filenames)
+
+#print(type(X_train))
+#print(X_train.shape)
+#print(X_train.dtype)
+#print(type(Y_train))
+#print(Y_train.shape)
+#print(Y_train.dtype)
+#print(type(X_validation))
+#print(X_validation.shape)
+#print(type(Y_validation))
+#print(Y_validation.shape)
+#print(type(X_test))
+#print(X_test.shape)
+#print(X_test.dtype)
+#print(type(Y_test))
+#print(Y_test.shape)
+#print(Y_test.dtype)
+#
+#print(X_train[1])
+#print(X_train[len(X_train)-1])
+#print(X_train[3])
+#print(X_train[len(X_train)-3])
+#print(X_test[0])
+#print(X_test[len(X_test)-1])
+
 
 
 # this spews out all of the preprocessed images for the first image into a folder
-preprocess.output_preprocessed(train_raw[0], "debug")
+#preprocess.output_preprocessed(train_raw[0], "debug")
 
 num_features = preprocess.feature_count()
 print("Train Pixels: %d" %train_pixel_cnt)
@@ -265,19 +229,19 @@ print("Test Pixels: %d" %test_pixel_cnt)
 print("Feature Vector Length: %d" %num_features)
 
 
-print("Serializing Training data:")
-(X_train, Y_train)           = restructure_data(train_raw, train_bin, train_pixel_cnt, num_features)
-print("Serializing Validation data:")
-(X_validation, Y_validation) = restructure_data(validation_raw, validation_bin, validation_pixel_cnt, num_features)
-print("Serializing Test data:")
-(X_test, Y_test)             = restructure_data(test_raw, test_bin, test_pixel_cnt, num_features)
+#print("Serializing Training data:")
+#(X_train, Y_train)           = restructure_data(train_raw, train_bin, train_pixel_cnt, num_features)
+#print("Serializing Validation data:")
+#(X_validation, Y_validation) = restructure_data(validation_raw, validation_bin, validation_pixel_cnt, num_features)
+#print("Serializing Test data:")
+#(X_test, Y_test)             = restructure_data(test_raw, test_bin, test_pixel_cnt, num_features)
 
 #X_train, X_test, Y_train, Y_test = train_test_split(raw_data, bin_data, test_size=(1-TRAIN_FRACTION))
 # free up space from data structure
 #del raw_data
 #del bin_data
 
-# print out testing and traininig sizes
+# print out testing and training sizes
 print("X_train: %d, X_test: %d, Y_train: %d, Y_test: %d" %(len(X_train), len(X_test), len(Y_train), len(Y_test)))
 
 # Train the model

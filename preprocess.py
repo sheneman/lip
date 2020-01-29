@@ -196,50 +196,47 @@ def feature_labels(sigmas = SIGMAS):
 
 def image_preprocess(filename, original_image, sigmas = SIGMAS):
 
-	image_list = []
-	original_image_array = numpy.array(original_image)
+	x=0
 
-	image_list.append(original_image_array);
+	original_image_array = numpy.array(original_image)
+	images = numpy.empty((78, original_image_array.size), dtype=numpy.uint8)
+
+	images[x]=original_image_array.flatten(order='F'); x+=1
 
 	for age in AGE_CLASSES:
-		image_list.append(label_age(original_image_array, age, filename))
+		images[x]=label_age(original_image_array, age, filename).flatten(order='F'); x+=1
 
 	for s in sigmas:
 
 		# Gaussian Smoothing
-		img2_array = gaussian_filter(original_image_array, sigma=s)
-		image_list.append(img2_array)
+		images[x] = gaussian_filter(original_image_array, sigma=s).flatten(order='F'); x+=1
 
 		# Sobel Edge Detection
-		img2_array = scipy.ndimage.sobel(original_image_array, mode='constant', cval=s)
-		image_list.append(img2_array)
+		images[x] = scipy.ndimage.sobel(original_image_array, mode='constant', cval=s).flatten(order='F'); x+=1
 
 		# Laplacian of Gaussian Edge Detection
-		img2_array = scipy.ndimage.gaussian_laplace(original_image_array, sigma=s) 
-		image_list.append(img2_array)
+		images[x] = scipy.ndimage.gaussian_laplace(original_image_array, sigma=s).flatten(order='F'); x+=1
 
 		# Gaussian Gradient Magnitude Edge Detection
-		img2_array = scipy.ndimage.gaussian_gradient_magnitude(original_image_array, sigma=s) 
-		image_list.append(img2_array)
+		images[x] = scipy.ndimage.gaussian_gradient_magnitude(original_image_array, sigma=s).flatten(order='F'); x+=1
 
 		# Difference of Gaussians
 		k = 1.7
 		tmp1_array = scipy.ndimage.gaussian_filter(original_image_array, sigma=s*k) 
 		tmp2_array = scipy.ndimage.gaussian_filter(original_image_array, sigma=s)
-		dog = tmp1_array - tmp2_array
-		image_list.append(dog)
+		images[x] = (tmp1_array - tmp2_array).flatten(order='F'); x+=1
 		
 		# Structure Tensor Eigenvalues
 		Axx,Axy,Ayy = feature.structure_tensor(original_image, sigma=s)
 		large_array,small_array = feature.structure_tensor_eigvals(Axx,Axy,Ayy)
-		image_list.append(large_array)
-		image_list.append(small_array)
+		images[x] = large_array.flatten(order='F'); x+=1
+		images[x] = small_array.flatten(order='F'); x+=1
 
 		# Hessian Matrix
 		Hrr,Hrc,Hcc = feature.hessian_matrix(original_image, sigma=s, order='rc')
-		image_list.append(Hrr)
-		image_list.append(Hrc)
-		image_list.append(Hcc)
+		images[x]=Hrr.flatten(order='F'); x+=1
+		images[x]=Hrc.flatten(order='F'); x+=1
+		images[x]=Hcc.flatten(order='F'); x+=1
 
 	#for i in range(5):
 		#image_list.append(wang_function(original_image, 1))
@@ -248,7 +245,13 @@ def image_preprocess(filename, original_image, sigmas = SIGMAS):
 		#image_list.append(wang_function(original_image, 4))
 		#image_list.append(wang_function(original_image, 5))
 
-	return(image_list)
+	images=numpy.transpose(images,(1,0))
+
+	#print("preprocess")
+	#print(type(images))
+	#print(images.shape)
+
+	return(images)
 
 
 def output_preprocessed(images, dir):
