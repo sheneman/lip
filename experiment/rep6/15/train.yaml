@@ -1,9 +1,7 @@
-modelname:              "./RF_classifier.model"
-threads:                10
-mask:                   0
+modelname:              "./model.model"
+threads:                50
 rawdir:                 "/nethome/sheneman/src/images/raw"
 bindir:                 "/nethome/sheneman/src/images/binary"
-maskdir:                "/nethome/sheneman/src/images/mask"
 importance:             "./feature_importance.csv"
 trainlist:              "./trainlist.txt"
 validationlist:         "./validationlist.txt"

@@ -1,5 +1,0 @@
-HELLO
-
-real	0m2.206s
-user	0m6.537s
-sys	0m7.630s

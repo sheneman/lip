@@ -2,5 +2,3 @@ inputlist:      "./testlist.txt"
 rawdir:         "/nethome/sheneman/src/images/raw"
 model:          "./model.model"
 outputdir:      "./output"
-mask:           0
-maskdir:        "/nethome/sheneman/src/images/mask"

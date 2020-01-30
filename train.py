@@ -32,8 +32,8 @@ import preprocessnew as preprocess
 now = int(time())
 
 # SHENEMAN - UNCOMMENT SEED CALL BELOW WHEN DONE TESTING
-seed(2)
-numpy.random.seed(2)
+seed(now)
+numpy.random.seed(now)
 
 
 #################################################################################
