@@ -11,6 +11,6 @@ rep() {
 
 ls ./experiment/ | while read i
 do
-	rep $i &
+	rep $i 
 done
 
