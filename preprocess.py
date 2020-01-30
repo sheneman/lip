@@ -194,13 +194,14 @@ def feature_labels(sigmas = SIGMAS):
 
 
 
-def image_preprocess(filename, original_image, sigmas = SIGMAS):
+def image_preprocess(filename, original_image_array, sigmas = SIGMAS):
+
+	# convert raw image to a normalized unsigned 8-bit grayscale with equalized histogram
+	original_image_array = cv2.normalize(original_image_array,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+	original_image_array = cv2.equalizeHist(original_image_array)
 
 	x=0
-
-	original_image_array = numpy.array(original_image)
 	images = numpy.empty((78, original_image_array.size), dtype=numpy.uint8)
-
 	images[x]=original_image_array.flatten(order='F'); x+=1
 
 	for age in AGE_CLASSES:
@@ -227,13 +228,13 @@ def image_preprocess(filename, original_image, sigmas = SIGMAS):
 		images[x] = (tmp1_array - tmp2_array).flatten(order='F'); x+=1
 		
 		# Structure Tensor Eigenvalues
-		Axx,Axy,Ayy = feature.structure_tensor(original_image, sigma=s)
+		Axx,Axy,Ayy = feature.structure_tensor(Image.fromarray(original_image_array), sigma=s)
 		large_array,small_array = feature.structure_tensor_eigvals(Axx,Axy,Ayy)
 		images[x] = large_array.flatten(order='F'); x+=1
 		images[x] = small_array.flatten(order='F'); x+=1
 
 		# Hessian Matrix
-		Hrr,Hrc,Hcc = feature.hessian_matrix(original_image, sigma=s, order='rc')
+		Hrr,Hrc,Hcc = feature.hessian_matrix(Image.fromarray(original_image_array), sigma=s, order='rc')
 		images[x]=Hrr.flatten(order='F'); x+=1
 		images[x]=Hrc.flatten(order='F'); x+=1
 		images[x]=Hcc.flatten(order='F'); x+=1
@@ -246,10 +247,6 @@ def image_preprocess(filename, original_image, sigmas = SIGMAS):
 		#image_list.append(wang_function(original_image, 5))
 
 	images=numpy.transpose(images,(1,0))
-
-	#print("preprocess")
-	#print(type(images))
-	#print(images.shape)
 
 	return(images)
 
