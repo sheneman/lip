@@ -1,10 +1,8 @@
 YAML CONFIG:
-    [modelname]:"./RF_classifier.model"
-    [threads]:"10"
-    [mask]:"0"
+    [modelname]:"./model.model"
+    [threads]:"25"
     [rawdir]:"/nethome/sheneman/src/images/raw"
     [bindir]:"/nethome/sheneman/src/images/binary"
-    [maskdir]:"/nethome/sheneman/src/images/mask"
     [importance]:"./feature_importance.csv"
     [trainlist]:"./trainlist.txt"
     [validationlist]:"./validationlist.txt"
@@ -2013,8 +2011,10 @@ Loading Training Image Data...
 1996: [MTYL_100_23_007_SLIM_B.tif]
 1997: [Po1g_100_3_040_SLIM_B.tif]
 1998: [MTYL_76_9_022_SLIM_A.tif]
+Number of Pixels in 1999 images: 20142165
 Loading Validation Image Data...
 0: [MTYL_100_9_003_SLIM_B.tif]
+Number of Pixels in 1 images: 7656
 Loading Testing Image Data...
 0: [MTYL_52_22_019_SLIM_G.tif]
 1: [MTYL_76_4_021_SLIM_B.tif]
@@ -13347,14 +13347,118 @@ Loading Testing Image Data...
 11328: [MTYL_100_26_007_SLIM_G.tif]
 11329: [MTYL_17_19_005_SLIM_A.tif]
 11330: [MTYL_28_2_028_SLIM_B.tif]
+Number of Pixels in 11331 images: 108275405
 Train Pixels: 20142165
 Validation Pixels: 7656
 Test Pixels: 108275405
 Feature Vector Length: 78
-Serializing Training data:
-Restructuring raw data...
-[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 0%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 1%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 2%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 3%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[                    ] 4%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 5%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 6%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 7%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 8%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[=                   ] 9%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 10%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 11%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 12%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 13%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[==                  ] 14%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 15%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 16%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 17%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 18%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[===                 ] 19%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 20%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 21%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 22%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 23%[====                ] 24%[====                ] 24%[====                ] 24%[====                ] 24%harness2.sh: line 1: 31714 Killed                  python /nethome/sheneman/src/lip/train.py --config=train.yaml > train_output.txt
+X_train: 20142165, X_test: 108275405, Y_train: 20142165, Y_test: 108275405
+Training the Random Forest
+building tree 1 of 100
+building tree 2 of 100
+building tree 3 of 100
+building tree 4 of 100
+building tree 5 of 100
+building tree 6 of 100
+building tree 7 of 100
+building tree 8 of 100
+building tree 9 of 100
+building tree 10 of 100
+building tree 11 of 100
+building tree 12 of 100
+building tree 13 of 100
+building tree 14 of 100
+building tree 15 of 100
+building tree 16 of 100
+building tree 17 of 100
+building tree 18 of 100
+building tree 19 of 100
+building tree 20 of 100
+building tree 21 of 100
+building tree 22 of 100
+building tree 23 of 100
+building tree 24 of 100
+building tree 25 of 100
+building tree 26 of 100
+building tree 27 of 100
+building tree 28 of 100
+building tree 29 of 100
+building tree 30 of 100
+building tree 31 of 100
+building tree 32 of 100
+building tree 33 of 100
+building tree 34 of 100
+building tree 35 of 100
+building tree 36 of 100
+building tree 37 of 100
+building tree 38 of 100
+building tree 39 of 100
+building tree 40 of 100
+building tree 41 of 100
+building tree 42 of 100
+building tree 43 of 100
+building tree 44 of 100
+building tree 45 of 100
+building tree 46 of 100
+building tree 47 of 100
+building tree 48 of 100
+building tree 49 of 100
+building tree 50 of 100
+building tree 51 of 100
+building tree 52 of 100
+building tree 53 of 100
+building tree 54 of 100
+building tree 55 of 100
+building tree 56 of 100
+building tree 57 of 100
+building tree 58 of 100
+building tree 59 of 100
+building tree 60 of 100
+building tree 61 of 100
+building tree 62 of 100
+building tree 63 of 100
+building tree 64 of 100
+building tree 65 of 100
+building tree 66 of 100
+building tree 67 of 100
+building tree 68 of 100
+building tree 69 of 100
+building tree 70 of 100
+building tree 71 of 100
+building tree 72 of 100
+building tree 73 of 100
+building tree 74 of 100
+building tree 75 of 100
+building tree 76 of 100
+building tree 77 of 100
+building tree 78 of 100
+building tree 79 of 100
+building tree 80 of 100
+building tree 81 of 100
+building tree 82 of 100
+building tree 83 of 100
+building tree 84 of 100
+building tree 85 of 100
+building tree 86 of 100
+building tree 87 of 100
+building tree 88 of 100
+building tree 89 of 100
+building tree 90 of 100
+building tree 91 of 100
+building tree 92 of 100
+building tree 93 of 100
+building tree 94 of 100
+building tree 95 of 100
+building tree 96 of 100
+building tree 97 of 100
+building tree 98 of 100
+building tree 99 of 100
+building tree 100 of 100
+DUMPING MODEL
+Mean Absolute Error: 0.9847367460782068
+Mean Squared Error: 0.01572128037757051
+Root Mean Squared Error: 0.12538453005682365
 
-real	19m12.819s
-user	15m0.827s
-sys	2m7.532s
+real	32m45.619s
+user	482m16.630s
+sys	3m7.358s

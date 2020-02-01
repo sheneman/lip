@@ -3,4 +3,4 @@ YAML CONFIG:
     [inputdir]:"./output"
 
 
-FILENAME,True Positives,False Positives,True Negatives,False Negatives,DICE,Jaccard,F0.5,Precision,Recall
+FILENAME,True Positives,False Positives,True Negatives,False Negatives,TM_CCORR_NORMED,DICE,Jaccard,F0.5,Precision,Recall

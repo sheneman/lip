@@ -19,7 +19,7 @@ pattern = re.compile(".*tif")
 #
 #
 def usage():
-	print("python score.pl [ --help | --verbose | --config=<YAML config filename> ] ")
+	print("python score.py [ --help | --verbose | --config=<YAML config filename> ] ")
 
 try:
 	opts, args = getopt.getopt(sys.argv[1:], "ho:v", ["help", "config="])

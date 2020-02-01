@@ -8,6 +8,7 @@ clear
 models/
 circlesout/
 experiment/
+blank_experiment.tar
 output/
 output_masked/
 scores/

@@ -1,13 +1,21 @@
-Failed to import the site module
-Traceback (most recent call last):
-  File "/opt/rh/rh-python36/root/usr/lib64/python3.6/site.py", line 548, in <module>
-    main()
-  File "/opt/rh/rh-python36/root/usr/lib64/python3.6/site.py", line 531, in main
-    known_paths = venv(known_paths)
-  File "/opt/rh/rh-python36/root/usr/lib64/python3.6/site.py", line 455, in venv
-    for line in f:
-OSError: [Errno 22] Invalid argument
+YAML CONFIG:
+    [inputlist]:"./testlist.txt"
+    [rawdir]:"/nethome/sheneman/src/images/raw"
+    [model]:"./model.model"
+    [outputdir]:"./output"
 
-real	0m0.024s
-user	0m0.017s
-sys	0m0.004s
+
+Loading classifier model = ./model.model
+Model Loaded!
+MTYL_100_1_018_SLIM_A.tif
+Loading: /nethome/sheneman/src/images/raw/MTYL_100_1_018_SLIM_A.tif
+Traceback (most recent call last):
+  File "/nethome/sheneman/src/lip/classify.py", line 128, in <module>
+    img_data = preprocess.image_preprocess(filename, raw_img)
+  File "/nethome/sheneman/src/lip/preprocess.py", line 200, in image_preprocess
+    original_image_array = cv2.normalize(original_image_array,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+TypeError: Expected Ptr<cv::UMat> for argument '%s'
+
+real	1m1.367s
+user	0m11.253s
+sys	0m15.606s

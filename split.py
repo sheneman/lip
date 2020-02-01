@@ -28,7 +28,7 @@ seed(now)
 #
 #
 def usage():
-        print("python split.pl [ --help | --verbose | --config=<YAML config filename> ] ")
+        print("python split.py [ --help | --verbose | --config=<YAML config filename> ] ")
 
 try:
         opts, args = getopt.getopt(sys.argv[1:], "ho:v", ["help", "config="])

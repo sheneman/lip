@@ -1,5 +1,5 @@
 modelname:              "./model.model"
-threads:                50
+threads:                25
 rawdir:                 "/nethome/sheneman/src/images/raw"
 bindir:                 "/nethome/sheneman/src/images/binary"
 importance:             "./feature_importance.csv"

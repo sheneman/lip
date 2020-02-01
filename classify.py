@@ -33,7 +33,7 @@ numpy.set_printoptions(threshold=sys.maxsize)
 #
 #
 def usage():
-	print("python train2.pl [ --help | --verbose | --config=<YAML config filename> ] ")
+	print("python classify.py [ --help | --verbose | --config=<YAML config filename> ] ")
 
 try:
 	opts, args = getopt.getopt(sys.argv[1:], "ho:v", ["help", "config="])
@@ -116,49 +116,20 @@ for filename in filenames:
 	rawpath = config["rawdir"] + "/" + filename
 	print("Loading: %s" %rawpath)
 	raw_img = Image.open(rawpath)
-
-	raw_cv2 = numpy.array(raw_img)
-
-	raw_cv2 = cv2.normalize(raw_cv2,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
-	raw_cv2 = cv2.equalizeHist(raw_cv2)
-
-	raw_img.close()
-	raw_img = Image.fromarray(raw_cv2)
-
-	img_data = preprocess.image_preprocess(filename, raw_img)
 	numcols,numrows = raw_img.size
+	raw_cv2 = numpy.array(raw_img)
+	raw_img.close()
+
+	data = preprocess.image_preprocess(filename, raw_cv2)
 
 	num_features = preprocess.feature_count()
 	print("Image Size: numcols=%d x numrows=%d" %(numcols,numrows))
 	print("Num Features: %d" %num_features)
 
-	#
-	# Now we need to reorganize the data into a long table of one pixel on each
-	# row, with columns representing the features
-	#
-	print("\nRe-structuring loaded data for classification...\n")
-
-	fcount = 0 
-	index = 0
-
-	# declare our new numpy array 
-	data = numpy.ndarray(shape=((numrows*numcols),num_features), dtype=numpy.uint8)
-
-	for col in range(numcols):
-		for row in range(numrows):
-			for f in range(num_features):
-				x = img_data[f][row][col]
-				data[index][f]=x
-				#print("[%d][%d]=%f" %(index,f,x))
-			index = index + 1	
-
 	# classify our input pixel
 	Y_pred = classifier.predict(data)
-	#Y_8bit = Y_pred.astype("u1")   
 
-	#predicted_array = numpy.reshape(Y_8bit,(numrows,numcols),order='F')
 	predicted_array = numpy.reshape(Y_pred,(numrows,numcols),order='F')
-
 	predicted_image = Image.fromarray(predicted_array)
 	
 	# Handles masks, if specified in config
@@ -169,7 +140,6 @@ for filename in filenames:
 	
 	predicted_image.save(output, "TIFF")
 
-	raw_img.close()
 	predicted_image.close()
 
 exit(0)
