@@ -7,7 +7,9 @@ venv
 clear
 models/
 circlesout/
+experiment
 experiment/
+experiment/*
 blank_experiment.tar
 output/
 output_masked/
