@@ -73,8 +73,6 @@ if(configfile == None):
 #   rawdir: 	<path to raw images>
 #   model:	<path to the model to use for classification>
 #   outputdir:	<path to output folder>
-#   mask: 	<0 or 1> - whether to use masks or not
-#   maskdir: 	<path to binary image mask files> 
 #
 # EXAMPLE:
 # --------
@@ -82,8 +80,6 @@ if(configfile == None):
 #   rawdir:	"../images/raw"
 #   model:	"./models/foo.model"
 #   outputdir:	"./output_directory"
-#   mask:	1
-#   maskdir:	"../images/mask"
 #
 #################################################################################
 
@@ -131,12 +127,6 @@ for filename in filenames:
 
 	predicted_array = numpy.reshape(Y_pred,(numrows,numcols),order='F')
 	predicted_image = Image.fromarray(predicted_array)
-	
-	# Handles masks, if specified in config
-	if(config["mask"] != 0):
-		maskpath = config["maskdir"] + "/" + filename
-		mask_img = Image.open(maskpath)
-		predicted_image = preprocess.apply_mask(predicted_image, mask_img)
 	
 	predicted_image.save(output, "TIFF")
 
