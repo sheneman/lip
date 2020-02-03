@@ -1,4 +1,4 @@
 inputlist:      "./testlist.txt"
 rawdir:         "/nethome/sheneman/src/images/raw"
-model:          "./models/train-faster.model"
+model:          "./model.model"
 outputdir:      "./output"

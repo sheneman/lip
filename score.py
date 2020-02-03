@@ -43,9 +43,10 @@ for o, a in opts:
 		assert False, "unhandled option"
 
 if(configfile == None):
-	print("Missing Argument.  Exiting")
-	usage()
-	exit(-1)
+	configfile="score.yaml"
+	#print("Missing Argument.  Exiting")
+	#usage()
+	#exit(-1)
 
 #################################################################################
 
@@ -98,6 +99,7 @@ for f in filelist:
 
 		# OpenCV2 Template Cross-Correlation Normalized (TM_CCORR_NORMED)
 		tm_ccorr = cv2.matchTemplate(output_imgarray,binary_imgarray,cv2.TM_CCORR_NORMED)[0][0]
+		#tm_ccorr = 0
 
 		numrows=len(binary_imgarray)
 		numcols=len(binary_imgarray[0])

@@ -15,7 +15,6 @@ SIGMAS = [ 0.3, 0.7, 1.0, 1.6, 3.5, 5.0, 10.0 ]
 #SIGMAS = [ 0.3 ]
 
 
-
 ##################################################################################
 #
 # function: apply_mask()
@@ -196,48 +195,64 @@ def feature_labels(sigmas = SIGMAS):
 
 def image_preprocess(filename, original_image_array, sigmas = SIGMAS):
 
-	# convert raw image to a normalized unsigned 8-bit grayscale with equalized histogram
-	original_image_array = cv2.normalize(original_image_array,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
-	original_image_array = cv2.equalizeHist(original_image_array)
-
 	x=0
+
 	images = numpy.empty((78, original_image_array.size), dtype=numpy.uint8)
-	images[x]=original_image_array.flatten(order='F'); x+=1
+
+	img = cv2.normalize(original_image_array,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+	images[x]=img.flatten(order='F'); x+=1
 
 	for age in AGE_CLASSES:
-		images[x]=label_age(original_image_array, age, filename).flatten(order='F'); x+=1
+		img = label_age(original_image_array, age, filename)
+		img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+		images[x] = img.flatten(order='F'); x+=1
 
 	for s in sigmas:
 
 		# Gaussian Smoothing
-		images[x] = gaussian_filter(original_image_array, sigma=s).flatten(order='F'); x+=1
+		img = gaussian_filter(original_image_array, sigma=s)
+		img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+		images[x] = img.flatten(order='F'); x+=1
 
 		# Sobel Edge Detection
-		images[x] = scipy.ndimage.sobel(original_image_array, mode='constant', cval=s).flatten(order='F'); x+=1
+		img = scipy.ndimage.sobel(original_image_array, mode='constant', cval=s)
+		img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+		images[x] = img.flatten(order='F'); x+=1
 
 		# Laplacian of Gaussian Edge Detection
-		images[x] = scipy.ndimage.gaussian_laplace(original_image_array, sigma=s).flatten(order='F'); x+=1
+		img = scipy.ndimage.gaussian_laplace(original_image_array, sigma=s)
+		img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+		images[x] = img.flatten(order='F'); x+=1
 
 		# Gaussian Gradient Magnitude Edge Detection
-		images[x] = scipy.ndimage.gaussian_gradient_magnitude(original_image_array, sigma=s).flatten(order='F'); x+=1
+		img = scipy.ndimage.gaussian_gradient_magnitude(original_image_array, sigma=s)
+		img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+		images[x] = img.flatten(order='F'); x+=1
 
 		# Difference of Gaussians
 		k = 1.7
 		tmp1_array = scipy.ndimage.gaussian_filter(original_image_array, sigma=s*k) 
 		tmp2_array = scipy.ndimage.gaussian_filter(original_image_array, sigma=s)
-		images[x] = (tmp1_array - tmp2_array).flatten(order='F'); x+=1
+		img = (tmp1_array - tmp2_array)
+		img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+		images[x] = img.flatten(order='F'); x+=1
 		
 		# Structure Tensor Eigenvalues
 		Axx,Axy,Ayy = feature.structure_tensor(Image.fromarray(original_image_array), sigma=s)
 		large_array,small_array = feature.structure_tensor_eigvals(Axx,Axy,Ayy)
-		images[x] = large_array.flatten(order='F'); x+=1
-		images[x] = small_array.flatten(order='F'); x+=1
+		img = cv2.normalize(large_array,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+		images[x] = img.flatten(order='F'); x+=1
+		img = cv2.normalize(small_array,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+		images[x] = img.flatten(order='F'); x+=1
 
 		# Hessian Matrix
 		Hrr,Hrc,Hcc = feature.hessian_matrix(Image.fromarray(original_image_array), sigma=s, order='rc')
-		images[x]=Hrr.flatten(order='F'); x+=1
-		images[x]=Hrc.flatten(order='F'); x+=1
-		images[x]=Hcc.flatten(order='F'); x+=1
+		img = cv2.normalize(Hrr,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+		images[x] = img.flatten(order='F'); x+=1
+		img = cv2.normalize(Hrc,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+		images[x] = img.flatten(order='F'); x+=1
+		img = cv2.normalize(Hcc,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+		images[x] = img.flatten(order='F'); x+=1
 
 	#for i in range(5):
 		#image_list.append(wang_function(original_image, 1))

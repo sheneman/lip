@@ -52,9 +52,10 @@ for o, a in opts:
                 assert False, "unhandled option"
 
 if(configfile == None):
-        print("Missing Argument.  Exiting")
-        usage()
-        exit(-1)
+	configfile = "split.yaml"
+        #print("Missing Argument.  Exiting")
+        #usage()
+        #exit(-1)
 
 #################################################################################
 

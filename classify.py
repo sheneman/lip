@@ -57,9 +57,10 @@ for o, a in opts:
 		assert False, "unhandled option"
 
 if(configfile == None):
-	print("Missing Argument.  Exiting")
-	usage()
-	exit(-1)
+	configfile="classify.yaml"
+	#print("Missing Argument.  Exiting")
+	#usage()
+	#exit(-1)
 
 #################################################################################
 
@@ -126,6 +127,7 @@ for filename in filenames:
 	Y_pred = classifier.predict(data)
 
 	predicted_array = numpy.reshape(Y_pred,(numrows,numcols),order='F')
+	predicted_array = cv2.normalize(predicted_array,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
 	predicted_image = Image.fromarray(predicted_array)
 	
 	predicted_image.save(output, "TIFF")
