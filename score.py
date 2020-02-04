@@ -44,9 +44,6 @@ for o, a in opts:
 
 if(configfile == None):
 	configfile="score.yaml"
-	#print("Missing Argument.  Exiting")
-	#usage()
-	#exit(-1)
 
 #################################################################################
 
@@ -68,10 +65,10 @@ if(configfile == None):
 
 cf = open(configfile, "r")
 config = yaml.load(cf, Loader=yaml.FullLoader)
-print("YAML CONFIG:")
-for c in config:
-        print("    [%s]:\"%s\"" %(c,config[c]))
-print("\n")
+#print("YAML CONFIG:")
+#for c in config:
+#        print("    [%s]:\"%s\"" %(c,config[c]))
+#print("\n")
 cf.close()
 
 
@@ -80,13 +77,18 @@ cf.close()
 # Iterate through all images and try all methods
 #
 
-print("FILENAME,True Positives,False Positives,True Negatives,False Negatives,TM_CCORR_NORMED,DICE,Jaccard,F0.5,Precision,Recall");
+# a list of arrays
+
+header = "FILENAME,True Positives,False Positives,True Negatives,False Negatives,TM_CCORR_NORMED,DICE,Jaccard,F0.5,Precision,Recall"
+print(header)
 
 filelist = [f for f in listdir(config["inputdir"]) if isfile(join(config["inputdir"], f))]
+scores = numpy.empty((len(filelist),10), dtype=numpy.float32)
+file_index = 0
 for f in filelist:
-	if(pattern.match(f)):
+	x = 0
 
-#		print(f + ",",end="")
+	if(pattern.match(f)):
 
 		binary_fullpath = config["bindir"] + '/' + f
 		output_fullpath = config["inputdir"] + '/' + f
@@ -97,9 +99,6 @@ for f in filelist:
 		binary_imgarray = numpy.array(binary_img)
 		output_imgarray = numpy.array(output_img)
 
-		# OpenCV2 Template Cross-Correlation Normalized (TM_CCORR_NORMED)
-		tm_ccorr = cv2.matchTemplate(output_imgarray,binary_imgarray,cv2.TM_CCORR_NORMED)[0][0]
-		#tm_ccorr = 0
 
 		numrows=len(binary_imgarray)
 		numcols=len(binary_imgarray[0])
@@ -107,8 +106,8 @@ for f in filelist:
 		totalsize=numrows*numcols
 
 		TP = 0 # true positives
-		TN = 0 # true negatives
 		FP = 0 # false positives
+		TN = 0 # true negatives
 		FN = 0 # false negatives
 
 		#pprint(binary_imgarray)
@@ -130,9 +129,19 @@ for f in filelist:
 
 		# For Debugging
 		#print("TP = ", TP);
-		#print("TN = ", TN);
 		#print("FP = ", FP);
+		#print("TN = ", TN);
 		#print("FN = ", FN);
+
+		scores[file_index][x] = TP; x+=1
+		scores[file_index][x] = FP; x+=1
+		scores[file_index][x] = TN; x+=1
+		scores[file_index][x] = FN; x+=1
+
+		# OpenCV2 Template Cross-Correlation Normalized (TM_CCORR_NORMED)
+		tm_ccorr = cv2.matchTemplate(output_imgarray,binary_imgarray,cv2.TM_CCORR_NORMED)[0][0]
+		scores[file_index][x] = tm_ccorr; x+=1
+		
 	
 		#DICE
 		numerator   = (2*TP)
@@ -141,6 +150,7 @@ for f in filelist:
 			DICE = float('NaN')
 		else:
 			DICE = numerator/denominator
+		scores[file_index][x] = DICE; x+=1
 
 
 
@@ -151,6 +161,7 @@ for f in filelist:
 			JACCARD = float('NaN')
 		else:
 			JACCARD   = numerator/denominator
+		scores[file_index][x] = JACCARD; x+=1
 
 
 	
@@ -161,6 +172,7 @@ for f in filelist:
 			F05 = float('NaN')
 		else:
 			F05 = numerator/denominator
+		scores[file_index][x] = F05; x+=1
 
 
 
@@ -171,6 +183,7 @@ for f in filelist:
 			PRECISION = float('NaN')
 		else:
 			PRECISION = numerator/denominator
+		scores[file_index][x] = PRECISION; x+=1
 
 
 
@@ -181,10 +194,20 @@ for f in filelist:
 			RECALL = float('NaN')
 		else:
 			RECALL = numerator/denominator
-
+		scores[file_index][x] = RECALL; x+=1
 
 
 		# output the row
 		output = f + ',' + str(TP) + ',' + str(FP) + ',' + str(TN) + ',' + str(FN) + ',' + str(tm_ccorr) + ',' + str(DICE) + ',' + str(JACCARD) + ',' + str(F05) + ',' + str(PRECISION) + ',' + str(RECALL);
 		print(output);
+
+		file_index += 1
+
+
+
+print("\n\n")
+print("Median TM_CCORR: %f" %(numpy.median(scores[:,4])))
+print("    Median DICE: %f" %(numpy.median(scores[:,5])))
+print("  Mean TM_CCORR: %f" %(numpy.mean(scores[:,4])))
+print("      Mean DICE: %f" %(numpy.mean(scores[:,5])))
 
