@@ -207,7 +207,7 @@ for f in filelist:
 
 print("\n\n")
 print("Median TM_CCORR: %f" %(numpy.median(scores[:,4])))
-print("    Median DICE: %f" %(numpy.median(scores[:,5])))
+print("    Median DICE: %f" %(numpy.nanmedian(scores[:,5])))
 print("  Mean TM_CCORR: %f" %(numpy.mean(scores[:,4])))
-print("      Mean DICE: %f" %(numpy.mean(scores[:,5])))
+print("      Mean DICE: %f" %(numpy.nanmean(scores[:,5])))
 
