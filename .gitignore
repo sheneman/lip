@@ -16,4 +16,7 @@ output_masked/
 scores/
 filelist*
 debug/*.tif
+*.h5
+*.hdf5
+*.model
 .*

@@ -56,11 +56,85 @@ def auto_canny(img, sigma=0.33):
 	# apply automatic Canny edge detection using the computed median
 	lower = int(max(0, (1.0 - sigma) * v)/4)
 	upper = int(min(255, (1.0 + sigma) * v))
-	print("lower=%d,upper=%d" %(lower,upper))
 	edged = cv2.Canny(img, lower, upper)
  
 	# return the edged image
 	return edged
+
+
+#################################################################################################################
+#
+# set pixel to extreme value based on threshhold and comparison of median neighborhood intensity relative 
+# to median intensity of overall image
+#
+#
+def median_hood(img_array, radius=4, factor=1.0):
+
+
+	#img=Image.fromarray(img_array)
+	#img.save("debug/ORIG_NEIGH.tif", "TIFF")
+
+	# if the input image is an unsigned 8-bit int, this function may generate an overflow
+	#   warning, so skip wang on such images
+	if(img_array[0][0].dtype == numpy.uint8):
+		return(img_array)
+
+	new_array = numpy.ndarray(img_array.shape,dtype=numpy.float32)
+	(numrows,numcols) = img_array.shape
+	for x in range(numcols):
+		for y in range(numrows):
+
+			x1 = x-radius
+			y1 = y-radius
+
+			x2 = x+radius
+			y2 = y+radius
+
+			if(x1<0):
+				x1=0
+			if(y1<0):
+				y1=0
+			if(x2>=numcols):
+				x2=numcols-1
+			if(y2>=numrows):
+				y2=numrows-1
+
+			neighborhood=img_array[y1:y2, x1:x2]
+			if(numpy.median(neighborhood) >= factor*numpy.median(img_array)):
+				new_array[y,x] = 1.0
+			else:
+				new_array[y,x] = -1.0
+
+	#img=Image.fromarray(new_array)
+	#img.save("debug/NEW_NEIGH.tif", "TIFF")
+
+	return(new_array)
+
+
+
+
+###############################################################################################
+#
+# Relative proximity to center of image, scaled from -1 to 1
+# 
+def center_proximity(img_array):
+
+	new_array = numpy.ndarray(img_array.shape,dtype=numpy.float32)
+	(numrows,numcols) = img_array.shape
+	for x in range(numcols):
+		for y in range(numrows):
+
+			distx = abs((float(x)/float(numcols)-0.5)*2.0)
+			disty = abs((float(y)/float(numrows)-0.5)*2.0)
+			final = 1.0-((distx+disty)/2.0)
+
+			new_array[y,x] = final
+
+	#img=Image.fromarray(new_array)
+	#img.save("debug/NEW_PROX.tif", "TIFF")
+
+	return(new_array)
+
 
 
 #
@@ -89,14 +163,25 @@ def wang_point(x, y, numrows, numcols, radius):
 	else:
 		y1=y+yr
 
+	# if the image is so small that we're still out of bounds, just punt
+	if( (x1>=numcols) or (x1<0) ):
+		x1 = x
+	if( (y1>=numrows) or (y1<0) ):
+		y1 = y
+		
+
 	return(x1,y1)
 
 
 
 
-def wang_function(img, radius):
+def wang_function(img_array, radius):
 
-	img_array = numpy.array(img)
+	# if the input image is an unsigned 8-bit int, this function may generate an overflow
+	#   warning, so skip wang on such images
+	if(img_array[0][0].dtype == numpy.uint8):
+		return(img_array)
+
 	new_array = numpy.ndarray(img_array.shape,dtype=numpy.float32)
 	(numrows,numcols) = img_array.shape
 	for x in range(numcols):
@@ -116,11 +201,8 @@ def wang_function(img, radius):
 # multiplying this by the length of the SIGMA parameter list and adding 1 for the original image
 # and adding +1 for the binary image
 #
-def feature_count():
-	c = 10
-	#wang = 5*5
-	wang = 0
-	return(len(SIGMAS)*c+len(AGE_CLASSES)+wang+1)	
+def feature_count(feature_labels):
+	return(len(feature_labels))
 
 #
 # given an age class label and the filename of the current image
@@ -189,43 +271,87 @@ def feature_labels(sigmas = SIGMAS):
 		l = "Hessian_Matrix_Hcc_" + str(s)
 		labels.append(l)
 
+	labels.append("Wang_1")
+	labels.append("Wang_3")
+	labels.append("Wang_5")
+	labels.append("Wang_7")
+
+	labels.append("median_hood_1.0")
+	labels.append("median_hood_1.25")
+	labels.append("median_hood_1.5")
+
+	labels.append("center_proximity")
+
 	return(labels)
 
 
+def simage(img_array, filename):
+		
+	img=Image.fromarray(img_array)
+	f = "./debug/32bit/" + filename
+	img.save(f, "TIFF")
 
-def image_preprocess(filename, original_image_array, sigmas = SIGMAS):
+	if(filename.startswith('AGE_')):		
+		f = "./debug/8bit/" + filename
+		img.save(f, "TIFF")
+	else:	
+		a = cv2.normalize(img_array,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+		img=Image.fromarray(a)
+		f = "./debug/8bit/" + filename
+		img.save(f, "TIFF")
+
+	return(0)
+	
+
+def image_preprocess(filename, nfeatures, original_image_array, sigmas = SIGMAS):
 
 	x=0
 
-	images = numpy.empty((78, original_image_array.size), dtype=numpy.uint8)
+	#simage(original_image_array, "original.tif")
+
+	images = numpy.empty((nfeatures, original_image_array.size), dtype=numpy.uint8)
 
 	img = cv2.normalize(original_image_array,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
 	images[x]=img.flatten(order='F'); x+=1
 
 	for age in AGE_CLASSES:
 		img = label_age(original_image_array, age, filename)
-		img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+		#f = "AGE_" + age + ".tif";  simage(img, f)
+
+		#img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
 		images[x] = img.flatten(order='F'); x+=1
 
 	for s in sigmas:
 
 		# Gaussian Smoothing
 		img = gaussian_filter(original_image_array, sigma=s)
+
+		#f = "gaussian_smoothing_" + str(s) + ".tif";   simage(img, f)
+
 		img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
 		images[x] = img.flatten(order='F'); x+=1
 
 		# Sobel Edge Detection
 		img = scipy.ndimage.sobel(original_image_array, mode='constant', cval=s)
+
+		#f = "sobel_edge_detection_" + str(s) + ".tif";   simage(img, f)
+
 		img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
 		images[x] = img.flatten(order='F'); x+=1
 
 		# Laplacian of Gaussian Edge Detection
 		img = scipy.ndimage.gaussian_laplace(original_image_array, sigma=s)
+
+		#f = "laplacian_of_gaussian_edge_detection_" + str(s) + ".tif";   simage(img, f)
+
 		img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
 		images[x] = img.flatten(order='F'); x+=1
 
 		# Gaussian Gradient Magnitude Edge Detection
 		img = scipy.ndimage.gaussian_gradient_magnitude(original_image_array, sigma=s)
+
+		#f = "gaussian_gradient_magnitude__edge_detection_" + str(s) + ".tif";   simage(img, f)
+
 		img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
 		images[x] = img.flatten(order='F'); x+=1
 
@@ -234,12 +360,19 @@ def image_preprocess(filename, original_image_array, sigmas = SIGMAS):
 		tmp1_array = scipy.ndimage.gaussian_filter(original_image_array, sigma=s*k) 
 		tmp2_array = scipy.ndimage.gaussian_filter(original_image_array, sigma=s)
 		img = (tmp1_array - tmp2_array)
+
+		#f = "difference_of_gaussians_" + str(s) + ".tif";   simage(img, f)
+
 		img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
 		images[x] = img.flatten(order='F'); x+=1
 		
 		# Structure Tensor Eigenvalues
 		Axx,Axy,Ayy = feature.structure_tensor(Image.fromarray(original_image_array), sigma=s)
 		large_array,small_array = feature.structure_tensor_eigvals(Axx,Axy,Ayy)
+
+		#f = "structure_tensor_eigenvalues_large_" + str(s) + ".tif";   simage(large_array, f)
+		#f = "structure_tensor_eigenvalues_small_" + str(s) + ".tif";   simage(small_array, f)
+
 		img = cv2.normalize(large_array,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
 		images[x] = img.flatten(order='F'); x+=1
 		img = cv2.normalize(small_array,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
@@ -247,6 +380,13 @@ def image_preprocess(filename, original_image_array, sigmas = SIGMAS):
 
 		# Hessian Matrix
 		Hrr,Hrc,Hcc = feature.hessian_matrix(Image.fromarray(original_image_array), sigma=s, order='rc')
+
+		
+		#f = "hessian_matrix_Hrr_" + str(s) + ".tif";   simage(Hrr, f)
+		#f = "hessian_matrix_Hrc_" + str(s) + ".tif";   simage(Hrc, f)
+		#f = "hessian_matrix_Hcc_" + str(s) + ".tif";   simage(Hcc, f)
+
+
 		img = cv2.normalize(Hrr,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
 		images[x] = img.flatten(order='F'); x+=1
 		img = cv2.normalize(Hrc,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
@@ -254,14 +394,67 @@ def image_preprocess(filename, original_image_array, sigmas = SIGMAS):
 		img = cv2.normalize(Hcc,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
 		images[x] = img.flatten(order='F'); x+=1
 
-	#for i in range(5):
-		#image_list.append(wang_function(original_image, 1))
-		#image_list.append(wang_function(original_image, 2))
-		#image_list.append(wang_function(original_image, 3))
-		#image_list.append(wang_function(original_image, 4))
-		#image_list.append(wang_function(original_image, 5))
+	# Wang points (radii of 1,3,5,7)
+	newimg = wang_function(original_image_array, radius=1)
+
+	#f = "wang_points_radius1.tif";   simage(newimg, f)
+
+	img = cv2.normalize(newimg,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+	images[x] = img.flatten(order='F'); x+=1
+	newimg = wang_function(original_image_array, radius=3)
+
+	#f = "wang_points_radius3.tif";   simage(newimg, f)
+
+	img = cv2.normalize(newimg,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+	images[x] = img.flatten(order='F'); x+=1
+	newimg = wang_function(original_image_array, radius=5)
+
+	#f = "wang_points_radius5.tif";   simage(newimg, f)
+
+	img = cv2.normalize(newimg,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+	images[x] = img.flatten(order='F'); x+=1
+	newimg = wang_function(original_image_array, radius=7)
+
+	#f = "wang_points_radius7.tif";   simage(newimg, f)
+
+	img = cv2.normalize(newimg,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+	images[x] = img.flatten(order='F'); x+=1
+
+	# Median Neighborhood compared to overall
+	newimg = median_hood(original_image_array, radius=4, factor=1.0)
+
+	#f = "median_hood_1.0.tif";   simage(newimg, f)
+
+	img = cv2.normalize(newimg,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+	images[x] = img.flatten(order='F'); x+=1
+
+	newimg = median_hood(original_image_array, radius=4, factor=1.25)
+
+	#f = "median_hood_1.25.tif";   simage(newimg, f)
+
+	img = cv2.normalize(newimg,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+	images[x] = img.flatten(order='F'); x+=1
+
+	newimg = median_hood(original_image_array, radius=4, factor=1.5)
+
+	#f = "median_hood_1.5.tif";   simage(newimg, f)
+
+	img = cv2.normalize(newimg,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+	images[x] = img.flatten(order='F'); x+=1
+
+
+	# Generate proximity map (to center of image)
+	newimg = center_proximity(original_image_array)
+
+	#f = "center_proximity.tif";   simage(newimg, f)
+
+	img = cv2.normalize(newimg,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+	images[x] = img.flatten(order='F'); x+=1
 
 	images=numpy.transpose(images,(1,0))
+
+	print("processed %d features out of %d" %(x,nfeatures))
+
 
 	return(images)
 

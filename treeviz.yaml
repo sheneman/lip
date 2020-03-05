@@ -1,0 +1,2 @@
+model:  "./model.model"
+output: "./decision_tree.png"

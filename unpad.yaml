@@ -1,0 +1,3 @@
+rawdir: "/nethome/sheneman/src/images/raw"
+padded: "./output"
+unpadded: "./unpadded"

@@ -1,7 +1,9 @@
-modelname:              "./model.model"
-threads:                40
-rawdir:                 "/nethome/sheneman/src/images/raw"
-bindir:                 "/nethome/sheneman/src/images/binary"
+rf_model:               "./rf.model"
+xgb_model:              "./xgb.model"
+mlp_model:              "./mlp.model"
+threads:                50
+rawdir:                 "/nethome/sheneman/src/MTY_100_revised/original/slim"
+bindir:                 "/nethome/sheneman/src/MTY_100_revised/original/binary_LD"
 importance:             "./feature_importance.csv"
 trainlist:              "./trainlist.txt"
 validationlist:         "./validationlist.txt"

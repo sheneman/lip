@@ -115,6 +115,7 @@ for f in filelist:
 		
 		for i in range(numrows):
 			for j in range(numcols):
+				#print("bin[%d][%d] = %d, output[%d][%d] = %d" %(i,j,i,j,binary_imgarray[i][j], output_imgarray[i][j]))
 				if(binary_imgarray[i][j] == 0 and output_imgarray[i][j]==0):
 					TN=TN+1
 				elif(binary_imgarray[i][j] == 255 and output_imgarray[i][j] == 255):
@@ -203,11 +204,20 @@ for f in filelist:
 
 		file_index += 1
 
+scores = scores[0:file_index][:]
 
 
 print("\n\n")
-print("Median TM_CCORR: %f" %(numpy.median(scores[:,4])))
-print("    Median DICE: %f" %(numpy.nanmedian(scores[:,5])))
-print("  Mean TM_CCORR: %f" %(numpy.mean(scores[:,4])))
-print("      Mean DICE: %f" %(numpy.nanmean(scores[:,5])))
+print(" Median TM_CCORR: %f" %(numpy.median(scores[:,4])))
+print("     Median DICE: %f" %(numpy.nanmedian(scores[:,5])))
+print("  Median JACCARD: %f" %(numpy.nanmedian(scores[:,6])))
+print("     Median F.05: %f" %(numpy.nanmedian(scores[:,7])))
+print("Median PRECISION: %f" %(numpy.nanmedian(scores[:,8])))
+print("   Median RECALL: %f" %(numpy.nanmedian(scores[:,9])))
+print("   Mean TM_CCORR: %f" %(numpy.mean(scores[:,4])))
+print("       Mean DICE: %f" %(numpy.nanmean(scores[:,5])))
+print("    Mean JACCARD: %f" %(numpy.nanmean(scores[:,6])))
+print("       Mean F.05: %f" %(numpy.nanmean(scores[:,7])))
+print("  Mean PRECISION: %f" %(numpy.nanmean(scores[:,8])))
+print("     Mean RECALL: %f" %(numpy.nanmean(scores[:,9])))
 

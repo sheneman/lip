@@ -1,4 +1,6 @@
 inputlist:      "./testlist.txt"
-rawdir:         "/nethome/sheneman/src/images/raw"
-model:          "./model.model"
+rawdir:         "/nethome/sheneman/src/MTY_100_revised/original/slim"
 outputdir:      "./output"
+rf_model:       "./rf.model"
+xgb_model:      "./xgb.model"
+mlp_model:      "./mlp.model"

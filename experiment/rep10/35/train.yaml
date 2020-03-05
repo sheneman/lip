@@ -1,8 +1,0 @@
-modelname:              "./model.model"
-threads:                40
-rawdir:                 "/nethome/sheneman/src/images/raw"
-bindir:                 "/nethome/sheneman/src/images/binary"
-importance:             "./feature_importance.csv"
-trainlist:              "./trainlist.txt"
-validationlist:         "./validationlist.txt"
-testlist:               "./testlist.txt"

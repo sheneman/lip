@@ -1,9 +1,9 @@
-rawdir:              "/nethome/sheneman/src/images/raw"
-bindir:              "/nethome/sheneman/src/images/binary"
-train_fraction:      0.30
-validation_fraction: 0.40
-test_fraction:       0.30
-file_filter:         "MTYL_52*.tif"
+rawdir:              "/nethome/sheneman/src/MTY_100_revised/revised/slim"
+bindir:              "/nethome/sheneman/src/MTY_100_revised/original/binary_LD"
+train_fraction:      0.65
+validation_fraction: 0.01
+test_fraction:       0.34
+file_filter:         "*.tif"
 #file_filter:         "*"
 trainlist_out:       "./trainlist.txt"
 validationlist_out:  "./validationlist.txt"
